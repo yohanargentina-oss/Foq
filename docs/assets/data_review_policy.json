@@ -1,0 +1,101 @@
+{
+  "base_27b_pct": 86.0,
+  "meilleur": {
+    "seuil": 0.99,
+    "taux_autonome_pct": 77.4,
+    "taux_revue_pct": 22.6,
+    "justesse_autonome_pct": 78.6,
+    "justesse_cascade_pct": 78.0,
+    "latence_moyenne_ms": 88
+  },
+  "courbe": [
+    {
+      "seuil": 0.0,
+      "taux_autonome_pct": 100.0,
+      "taux_revue_pct": 0.0,
+      "justesse_autonome_pct": 71.2,
+      "justesse_cascade_pct": 71.2,
+      "latence_moyenne_ms": 42
+    },
+    {
+      "seuil": 0.6,
+      "taux_autonome_pct": 98.6,
+      "taux_revue_pct": 1.4,
+      "justesse_autonome_pct": 71.4,
+      "justesse_cascade_pct": 71.6,
+      "latence_moyenne_ms": 45
+    },
+    {
+      "seuil": 0.7,
+      "taux_autonome_pct": 96.6,
+      "taux_revue_pct": 3.4,
+      "justesse_autonome_pct": 71.4,
+      "justesse_cascade_pct": 72.0,
+      "latence_moyenne_ms": 49
+    },
+    {
+      "seuil": 0.75,
+      "taux_autonome_pct": 94.4,
+      "taux_revue_pct": 5.6,
+      "justesse_autonome_pct": 72.2,
+      "justesse_cascade_pct": 72.6,
+      "latence_moyenne_ms": 54
+    },
+    {
+      "seuil": 0.8,
+      "taux_autonome_pct": 93.0,
+      "taux_revue_pct": 7.0,
+      "justesse_autonome_pct": 72.7,
+      "justesse_cascade_pct": 73.0,
+      "latence_moyenne_ms": 57
+    },
+    {
+      "seuil": 0.85,
+      "taux_autonome_pct": 90.8,
+      "taux_revue_pct": 9.2,
+      "justesse_autonome_pct": 72.9,
+      "justesse_cascade_pct": 73.6,
+      "latence_moyenne_ms": 61
+    },
+    {
+      "seuil": 0.9,
+      "taux_autonome_pct": 88.8,
+      "taux_revue_pct": 11.2,
+      "justesse_autonome_pct": 73.4,
+      "justesse_cascade_pct": 74.6,
+      "latence_moyenne_ms": 65
+    },
+    {
+      "seuil": 0.92,
+      "taux_autonome_pct": 87.8,
+      "taux_revue_pct": 12.2,
+      "justesse_autonome_pct": 73.8,
+      "justesse_cascade_pct": 75.0,
+      "latence_moyenne_ms": 67
+    },
+    {
+      "seuil": 0.95,
+      "taux_autonome_pct": 85.2,
+      "taux_revue_pct": 14.8,
+      "justesse_autonome_pct": 75.8,
+      "justesse_cascade_pct": 76.8,
+      "latence_moyenne_ms": 73
+    },
+    {
+      "seuil": 0.97,
+      "taux_autonome_pct": 83.0,
+      "taux_revue_pct": 17.0,
+      "justesse_autonome_pct": 76.4,
+      "justesse_cascade_pct": 76.2,
+      "latence_moyenne_ms": 77
+    },
+    {
+      "seuil": 0.99,
+      "taux_autonome_pct": 77.4,
+      "taux_revue_pct": 22.6,
+      "justesse_autonome_pct": 78.6,
+      "justesse_cascade_pct": 78.0,
+      "latence_moyenne_ms": 88
+    }
+  ]
+}

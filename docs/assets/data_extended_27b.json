@@ -1,0 +1,61 @@
+{
+  "n": 500,
+  "correct": 429,
+  "score_pct": 85.8,
+  "latency_p50_ms": 241.7,
+  "per_category": {
+    "causalite_fallacie": {
+      "correct": 39,
+      "total": 39
+    },
+    "course_position": {
+      "correct": 29,
+      "total": 39
+    },
+    "enigme_linguistique": {
+      "correct": 28,
+      "total": 39
+    },
+    "maths_contre_intuitives": {
+      "correct": 31,
+      "total": 39
+    },
+    "negations_multiples": {
+      "correct": 36,
+      "total": 39
+    },
+    "physiologie_contre_intuitive": {
+      "correct": 35,
+      "total": 39
+    },
+    "raisonnement_spatial": {
+      "correct": 32,
+      "total": 38
+    },
+    "raisonnement_temporel": {
+      "correct": 25,
+      "total": 38
+    },
+    "routage": {
+      "correct": 36,
+      "total": 38
+    },
+    "securite_info": {
+      "correct": 37,
+      "total": 38
+    },
+    "sens_commun": {
+      "correct": 34,
+      "total": 38
+    },
+    "sentiment": {
+      "correct": 36,
+      "total": 38
+    },
+    "triage": {
+      "correct": 31,
+      "total": 38
+    }
+  },
+  "note": "Cas externes vérifiés à l'aveugle, jamais vus par l'adaptateur v1 de production."
+}

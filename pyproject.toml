@@ -1,0 +1,65 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "foq"
+version = "1.0.1"
+description = "⚡ Foq - Ultra-fast, deterministic System 1 decision engine for AI agents (100% Local)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+authors = [
+    { name = "Foq Team" }
+]
+keywords = ["system1", "ai", "logits", "decision", "typed", "firewall", "fastapi"]
+dependencies = [
+    "httpx>=0.24.0",
+    "numpy>=1.24.0",
+]
+
+[project.urls]
+Homepage = "https://foq.fr"
+Documentation = "https://github.com/yohanargentina-oss/Foq/tree/main/docs"
+Repository = "https://github.com/yohanargentina-oss/Foq.git"
+Issues = "https://github.com/yohanargentina-oss/Foq/issues"
+
+[project.optional-dependencies]
+security = [
+    "fastapi>=0.100.0",
+    "uvicorn>=0.22.0",
+]
+browser = [
+    "playwright>=1.40.0",
+]
+calibration = [
+    "scipy>=1.10.0",
+]
+extract = [
+    "pydantic>=2.0.0",
+]
+all = [
+    "fastapi>=0.100.0",
+    "uvicorn>=0.22.0",
+    "playwright>=1.40.0",
+    "scipy>=1.10.0",
+    "pydantic>=2.0.0",
+]
+
+[project.scripts]
+foq = "foq.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["foq*"]
