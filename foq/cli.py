@@ -133,19 +133,54 @@ def cmd_setup(args):
         os.replace(tempo, dest)
         print("      OK — modèle installé et vérifié :", dest)
 
-    # 2. Serveur llama
+    # 2. Serveur llama — le format PQ2_0 exige la build llama.cpp Foq
     print("[2/3] Détection du serveur d'inférence (llama-server)...")
-    llama = _shutil.which("llama-server") or (
-        os.path.exists(os.path.join(home, ".local", "bin", "foq-llama", "llama-server.exe"))
-        and os.path.join(home, ".local", "bin", "foq-llama", "llama-server.exe")
-    )
+    print("      NB : les poids Foq utilisent le format ternaire PQ2_0, lisible")
+    print("      uniquement par la build llama.cpp Foq. Les builds officielles")
+    print("      ggml-org rejettent le fichier (type de tenseur inconnu).")
+
+    import re as _re
+
+    RELEASES_URL = "https://github.com/yohanargentina-oss/Foq/releases"
+    foq_llama_dir = os.path.join(home, ".local", "bin", "foq-llama")
+
+    def _banniere_llama(exe):
+        try:
+            r = subprocess.run([exe, "--version"], capture_output=True, text=True, timeout=20)
+            return r.stdout + r.stderr
+        except Exception:
+            return ""
+
+    candidats = []
+    if os.environ.get("LLAMA_SERVER"):
+        candidats.append(os.environ["LLAMA_SERVER"])
+    for nom in ("llama-server.exe", "llama-server"):
+        p = os.path.join(foq_llama_dir, nom)
+        if os.path.exists(p):
+            candidats.append(p)
+            break
+    candidats.append(_shutil.which("llama-server"))
+    llama = next((c for c in candidats if c), None)
+
     if llama:
-        print("      OK —", llama)
+        print("      Trouvé —", llama)
+        banniere = _banniere_llama(llama)
+        if _re.search(r"version:\s*\d+\s*\(", banniere):
+            print("      [!] Build llama.cpp OFFICIELLE détectée : elle ne peut PAS charger")
+            print("          le format PQ2_0. Installez la build Foq :")
+            print(f"          {RELEASES_URL}  ->  ~/.local/bin/foq-llama/")
+        elif not banniere.strip():
+            print("      [!] Bannière de version illisible — build non vérifiée. Si le")
+            print("          serveur refuse le modèle, prenez la build Foq :")
+            print(f"          {RELEASES_URL}")
+        else:
+            print("      OK — build Foq compatible PQ2_0.")
     else:
         print("      [À FAIRE] llama-server introuvable.")
-        print("      Installez llama.cpp (https://github.com/ggml-org/llama.cpp/releases)")
-        print("      puis placez llama-server dans votre PATH, ou dans")
-        print("      ~/.local/bin/foq-llama/. Les lanceurs Foq le trouveront là.")
+        print("      Installez la build llama.cpp Foq (support PQ2_0) depuis :")
+        print(f"          {RELEASES_URL}")
+        print("      puis décompressez-la dans ~/.local/bin/foq-llama/.")
+        print("      Les lanceurs Foq la trouveront là (ou via la variable LLAMA_SERVER).")
 
     # 3. Adaptateur décision (optionnel)
     print("[3/3] Adaptateur LoRA décision (optionnel, +10,7 pts mesurés)...")

@@ -14,17 +14,21 @@ if not exist "%MODEL_PATH%" (
     exit /b 1
 )
 
-:: Trouver llama-server.exe (PATH ou dossier local)
+:: Trouver llama-server.exe — la build Foq (PQ2_0) est prioritaire sur le PATH :
+:: un llama.cpp officiel dans le PATH ne peut pas charger ce modèle.
 set "LLAMA_EXE="
-where.exe llama-server.exe >nul 2>&1
-if %ERRORLEVEL% equ 0 (
-    set "LLAMA_EXE=llama-server.exe"
-) else if exist "%USERPROFILE%\.local\bin\foq-llama\llama-server.exe" (
+if exist "%USERPROFILE%\.local\bin\foq-llama\llama-server.exe" (
     set "LLAMA_EXE=%USERPROFILE%\.local\bin\foq-llama\llama-server.exe"
+) else (
+    where.exe llama-server.exe >nul 2>&1
+    if not errorlevel 1 set "LLAMA_EXE=llama-server.exe"
 )
 
 if "%LLAMA_EXE%"=="" (
-    echo [ERREUR] llama-server.exe introuvable dans le PATH ou .local\bin\foq-llama.
+    echo [ERREUR] llama-server introuvable — .local\bin\foq-llama ou PATH.
+    echo Le modele Foq utilise le format PQ2_0 : il faut la build llama.cpp Foq
+    echo https://github.com/yohanargentina-oss/Foq/releases
+    echo Un llama.cpp officiel ne peut pas charger ce modele.
     pause
     exit /b 1
 )

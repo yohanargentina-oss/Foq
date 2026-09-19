@@ -8,7 +8,7 @@ This guide is specifically written for AI agents (Codex, Claude, Gemini, local a
 
 Generative conversational LLMs (GPT-4, Claude 3.5 Sonnet, Gemini 1.5 Pro) are **System 2** reasoning models: they think sequentially, output conversational sentences token-by-token, and take 1 to 5 seconds to answer.
 
-**Foq is a 27B System 1 Decision Engine**:
+**Foq is an 8B System 1 Decision Engine**:
 * **0 text tokens generated**: No polite preamble (*"Sure! Here is the answer..."*), no conversational filler.
 * **1-Pass Feed-Forward Inference (Prefill-only)**: Evaluates context and extracts target logprobs in ~50 to 150 ms on NVIDIA GPUs.
 * **Rigorous RLCD Calibration**: A stated 85% confidence strictly corresponds to an 85% empirical accuracy rate.
@@ -33,7 +33,13 @@ Generative conversational LLMs (GPT-4, Claude 3.5 Sonnet, Gemini 1.5 Pro) are **
 Foq connects to a local `llama-server` instance.
 
 * **Default URL**: `http://127.0.0.1:8089`
-* **Model**: `foq-juge-27b.gguf` (27B Ternary PQ2_0, ~7.2 GB VRAM)
+* **Model**: `foq-reflex-8b-pq2_0.gguf` — **Foq 8B is the required reference model**
+  (Ternary PQ2_0, 2.2 GB). Install it with `foq setup` (SHA-256 verified).
+  Do not substitute another GGUF file.
+* **Runtime**: PQ2_0 is a Foq-specific tensor format — it requires the **Foq
+  build of llama.cpp** (`llama-server`, unpacked to `~/.local/bin/foq-llama/`,
+  see [Releases](https://github.com/yohanargentina-oss/Foq/releases)). Official
+  ggml-org builds reject the file with an *unknown tensor type* error.
 * **Launcher**:
   * Windows: `./start_foq_server.cmd` or `foq serve`
   * Linux / macOS: `./start_foq_server.sh` or `foq serve`

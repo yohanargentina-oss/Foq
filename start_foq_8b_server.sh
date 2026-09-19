@@ -15,12 +15,21 @@ if [ ! -f "$MODEL_PATH" ]; then
     exit 1
 fi
 
-LLAMA_SERVER="${LLAMA_SERVER:-$(command -v llama-server || true)}"
-if [ -z "$LLAMA_SERVER" ] && [ -x "${HOME}/.local/bin/foq-llama/llama-server" ]; then
-    LLAMA_SERVER="${HOME}/.local/bin/foq-llama/llama-server"
+# La build Foq (PQ2_0) est prioritaire sur le PATH : un llama.cpp officiel
+# ne peut pas charger ce modèle.
+LLAMA_SERVER="${LLAMA_SERVER:-}"
+if [ -z "$LLAMA_SERVER" ]; then
+    for _cand in "${HOME}/.local/bin/foq-llama/llama-server.exe" "${HOME}/.local/bin/foq-llama/llama-server"; do
+        if [ -x "$_cand" ]; then LLAMA_SERVER="$_cand"; break; fi
+    done
 fi
 if [ -z "$LLAMA_SERVER" ]; then
-    echo "[ERREUR] llama-server introuvable dans le PATH."
+    LLAMA_SERVER="$(command -v llama-server || command -v llama-server.exe || true)"
+fi
+if [ -z "$LLAMA_SERVER" ]; then
+    echo "[ERREUR] llama-server introuvable — LLAMA_SERVER, ~/.local/bin/foq-llama, PATH."
+    echo "Le modèle Foq utilise le format PQ2_0 : il faut la build llama.cpp Foq"
+    echo "https://github.com/yohanargentina-oss/Foq/releases"
     exit 1
 fi
 

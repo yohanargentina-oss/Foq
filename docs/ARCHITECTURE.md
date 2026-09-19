@@ -36,7 +36,7 @@ In **Foq**, the decoding loop is **entirely short-circuited**:
 [ User Context + Options [A], [B], [C] ]
                       │
                       ▼ (single parallel feed-forward pass / prefill)
-     [ 27B Ternary Neural Network ]
+     [ Foq 8B Ternary Neural Network ]
                       │
                       ▼
      [ First output token logits ]
@@ -61,13 +61,15 @@ On every call to `llama-server.exe`, Foq enforces the following parameters:
 
 ---
 
-## 3. Hardware Infrastructure & the 27B Model
+## 3. Hardware Infrastructure & the Foq 8B Model
 
 Foq builds on a software and hardware stack optimized for NVIDIA GPUs:
 
-* **Model**: `foq-judge-27b.gguf`, derived from a 27B architecture with high semantic knowledge density.
-* **PQ2_0 Ternary Quantization**: extreme 2-bit-per-weight compression. This quantization preserves the latent-space structure required for classification while shrinking the VRAM footprint to **~7.2 GB**, enabling ultra-fast execution on an NVIDIA RTX 4080 / 4090.
-* **Execution Engine**: `llama-server.exe` compiled with llama.cpp 12.4 and native **Flash Attention** support.
+* **Model**: `foq-reflex-8b-pq2_0.gguf` — **Foq 8B, the required reference
+  decision model** (installed by `foq setup`).
+* **PQ2_0 Ternary Quantization**: extreme 2-bit-per-weight compression. This quantization preserves the latent-space structure required for classification while shrinking the footprint to **2.2 GB** (~3 GB VRAM with KV-cache), enabling ultra-fast execution on an NVIDIA RTX 4080 / 4090.
+* **Execution Engine**: the **Foq build of llama.cpp** (`llama-server`, PQ2_0
+  tensor support — official ggml-org builds cannot load the model) with native **Flash Attention**.
 * **Full GPU Offload (`-ngl 99`)**: the entire stack of model layers resides in GPU video memory.
 * **Multi-Slot Architecture (`-np 4`)**: the server manages 4 independent concurrent inference slots, processing 4 questions in parallel without a bottleneck.
 

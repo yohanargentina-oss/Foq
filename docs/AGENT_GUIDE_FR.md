@@ -8,7 +8,7 @@ Ce guide est spécifiquement rédigé à l'attention des agents IA (Codex, Claud
 
 Les LLM de conversation (comme GPT-4, Claude 3.5 Sonnet ou Gemini 1.5 Pro) sont des modèles de **Système 2** (selon la classification de Kahneman) : ils raisonnent séquentiellement, génèrent du texte mot à mot et prennent 1 à 5 secondes pour répondre.
 
-**Foq est un moteur de décision Système 1 (27B)** :
+**Foq est un moteur de décision Système 1 (8B)** :
 * **0 token rédigé** : Pas de phrase d'introduction, pas de salutations, pas d'explication superflue.
 * **1 seule passe feed-forward (prefill-only)** : Évalue le contexte et extrait directement les logprobs des options cibles en ~50 à 150 ms sur GPU NVIDIA.
 * **Calibration RLCD stricte** : Une confiance annoncée de 85 % signifie une exactitude empirique de 85 % (pas de sur-confiance aveugle).
@@ -33,8 +33,15 @@ Les LLM de conversation (comme GPT-4, Claude 3.5 Sonnet ou Gemini 1.5 Pro) sont 
 Foq nécessite que son serveur local d'inférence soit actif.
 
 * **URL par défaut** : `http://127.0.0.1:8089`
-* **Modèle** : `foq-juge-27b.gguf` (27B Ternaire PQ2_0, ~7.2 Go VRAM)
-* **Moteur d'inférence** : `llama-server.exe` (llama.cpp 12.4, Flash Attention activé, 4 slots concurrents `-np 4`)
+* **Modèle** : `foq-reflex-8b-pq2_0.gguf` — **Foq 8B est LE modèle de référence
+  obligatoire** (ternaire PQ2_0, 2,2 Go). Installez-le avec `foq setup`
+  (SHA-256 vérifié). Ne le remplacez pas par un autre fichier GGUF.
+* **Moteur d'inférence** : le format PQ2_0 est spécifique à Foq — il exige la
+  **build llama.cpp Foq** (`llama-server`, décompressée dans
+  `~/.local/bin/foq-llama/`, voir les
+  [Releases](https://github.com/yohanargentina-oss/Foq/releases)). Les builds
+  officielles ggml-org rejettent le fichier avec une erreur *unknown tensor
+  type*. Flash Attention activé, 4 slots concurrents `-np 4`.
 * **Commande de démarrage** :
   ```cmd
   # Windows
