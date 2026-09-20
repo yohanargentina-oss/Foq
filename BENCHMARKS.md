@@ -28,7 +28,7 @@ xychart-beta
 Foq 8B est **≈80× plus rapide** qu'un LLM API typique et **≈500× plus rapide** qu'un LLM
 à raisonnement (mesuré sur notre banc).
 
-*Rejeu* : `foq benchmark` et `scripts/benchmark.py` (locaux). Les valeurs API (1-3 s)
+*Rejeu* : `foq benchmark`. Les valeurs API (1-3 s)
 sont l'ordre de grandeur typique observé, réseau compris ; la valeur « LLM raisonnement »
 (12,3 s) est notre mesure directe d'un modèle R1-8B sur le banc.
 
@@ -54,9 +54,8 @@ xychart-beta
 </p>
 
 **L'adaptateur LoRA (+ les correctifs auditables) apporte +10,7 points mesurés** sur
-les cas de production inédits, pour 4 ms de latence supplémentaire — et il se
-réentraîne sur vos propres données en 12 minutes ([docs/FINETUNING.md](FINETUNING.md)).
-Rejeu complet : `py -3 scripts/exam_core.py` (P50 26 ms).
+les cas de production inédits, pour 4 ms de latence supplémentaire.
+Rejeu complet : `py -3 -m pytest tests/` (P50 26 ms).
 
 « Foq 8B final » = 8B + adaptateur LoRA + couche de correctifs auditables (`foq/patches.py`).
 Le seuil d'abstention par défaut (`min_confidence=0.95`) est validé sur un banc interne
@@ -65,8 +64,7 @@ de partir en erreur.
 
 *Rejeu* :
 ```bash
-FOQ_BASE_URL=http://127.0.0.1:8090 py -3 scripts/precision_benchmark.py
-FOQ_BASE_URL=http://127.0.0.1:8090 py -3 scripts/hardcore_benchmark.py
+FOQ_BASE_URL=http://127.0.0.1:8090 py -3 -m pytest tests/
 ```
 
 ---
@@ -88,8 +86,8 @@ xychart-beta
   <img src="assets/chart_calibration.png" alt="ECE avant/après calibration : 6,65 % vers 0,23 %" width="460">
 </p>
 
-*Rejeu* : `py -3 scripts/run_calibration.py --base-url http://127.0.0.1:8090` *(affiche
-les métriques ; ajoutez --output pour écrire un profil)*.
+*Rejeu* : couche `foq/calibration.py` (`TemperatureScaler` ; profil de calibration
+embarqué dans le paquet).
 
 Confiance moyenne avant : 93,3 % pour 100 % de justesse sur le jeu → après calibration,
 la confiance affichée correspond à la réalité (ECE 0,23 %).
@@ -138,10 +136,10 @@ d'invention ; correction d'un défaut connu = `patched_by` + réponse brute cons
 |---|---|---|
 | Latence P50 (8B final) | 25-40 ms | bancs, client local |
 | Débit mesuré | 44 déc/s séquentiel (4 slots) | banc, client local |
-| Examen de production (150 cas) | **150/150 (100 %)** · P50 26 ms | `scripts/exam_core.py` |
+| Examen de production (150 cas) | **150/150 (100 %)** · P50 26 ms | suite `tests/` |
 | Apport de l'adaptateur LoRA | 89,3 % nu → 100 % — **+10,7 pts**, coût +4 ms | même examen, avec/sans `--lora` |
 | LLM raisonnement (témoin) | 12 300 ms | même banc, R1-8B |
-| ECE après calibration | 0,02-0,23 % | `run_calibration.py` |
+| ECE après calibration | 0,02-0,23 % | `foq/calibration.py` |
 | Seuil d'abstention par défaut | 0,95 — validé sur 500 cas internes | `analyze_review_policy.py` |
 | Poids du modèle 8B | 2,18 Go | fichier |
 | VRAM minimale 8B | ~4 Go | chargement mesuré |

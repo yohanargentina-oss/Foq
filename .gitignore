@@ -5,26 +5,11 @@ __pycache__/
 *.so
 .Python
 build/
-develop-eggs/
-dist/
-downloads/
-eggs/
 .eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
 *.egg-info/
-.installed.cfg
-*.egg
-
-# Virtual Environments
+dist/
 .venv/
 venv/
-ENV/
-env/
 
 # Environment Variables and Credentials
 .env
@@ -32,34 +17,20 @@ env/
 *.key
 *.pem
 
-# Token and Authentication Caches
-data/*.bin
-*.bin
-outlook_token_cache.bin
-
-# Models and Large Binary Weights (>100MB)
+# Models and Large Binary Weights
 *.gguf
 *.pt
-*.bin
 *.onnx
 *.safetensors
 
-# Entrainement LoRA : environnement, artefacts et donnees brutes (locaux)
-.venv-train/
+# Local artifacts (not distributed)
 adapters/
-data/_mega_raw/
-data/_mega_merged.jsonl
-data/_external/
-training_smoke.log
+downloads/
 
 # IDE and OS Files
 .idea/
 .vscode/
 *.swp
-*.swo
-*~
 .DS_Store
 Thumbs.db
-desktop.ini
 *.log
-dist/

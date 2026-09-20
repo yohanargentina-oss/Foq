@@ -69,7 +69,7 @@ class TestSecurityFailClosed(unittest.TestCase):
 class TestEngineLifecycle(unittest.TestCase):
     def test_default_profile_resolved_from_repo_root(self):
         """Le profil par défaut doit être chargé même depuis un autre répertoire de travail."""
-        expected = json.loads((REPO_ROOT / "calibration_profile.json").read_text(encoding="utf-8"))
+        expected = json.loads((REPO_ROOT / "foq" / "calibration_profile.json").read_text(encoding="utf-8"))
         old_cwd = os.getcwd()
         with tempfile.TemporaryDirectory() as tmp:
             os.chdir(tmp)

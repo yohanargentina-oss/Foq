@@ -1,10 +1,9 @@
 """
-Benchmark de vitesse et de latence pour Foq.
-Mesure la latence par décision (ms) et le débit (décisions / seconde) sur Foq 27B.
+Benchmark de vitesse et de latence pour Foq (`foq benchmark`).
+Mesure la latence par décision (ms) et le débit (décisions / seconde) sur Foq 8B.
 """
 
 import sys
-import os
 import time
 
 if sys.stdout.encoding != "utf-8":
@@ -13,10 +12,8 @@ if sys.stdout.encoding != "utf-8":
     except Exception:
         pass
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
-from foq.engine import FoqEngine
-from foq.schemas import BinaryChoice
+from .engine import FoqEngine
+from .schemas import BinaryChoice
 
 
 def main():

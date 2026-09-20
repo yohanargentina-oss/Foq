@@ -82,7 +82,7 @@ class TestFoqPrimitives(unittest.TestCase):
         self.assertEqual(guard._schema.name, "security_audit")
 
     def test_calibration_profile(self):
-        profile = CalibrationProfile("calibration_profile.json")
+        profile = CalibrationProfile()
         loaded = profile.load()
         self.assertTrue(loaded)
         self.assertEqual(profile.model_alias, "foq")

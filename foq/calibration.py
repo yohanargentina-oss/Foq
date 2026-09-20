@@ -149,7 +149,9 @@ class TemperatureScaler:
 class CalibrationProfile:
     """Sauvegarde et chargement d'un profil de calibration."""
 
-    def __init__(self, filepath: str = "calibration_profile.json"):
+    _DEFAULT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "calibration_profile.json")
+
+    def __init__(self, filepath: str = _DEFAULT):
         self.filepath = filepath
         self.temperature = 1.0
         self.ece = 0.0

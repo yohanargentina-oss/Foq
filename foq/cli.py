@@ -40,8 +40,7 @@ def cmd_serve(args):
 
 def cmd_benchmark(args):
     """Lance le banc d'épreuve complet."""
-    bench_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "scripts", "benchmark.py"))
-    subprocess.run([sys.executable, bench_file])
+    subprocess.run([sys.executable, "-m", "foq.bench"])
 
 
 def cmd_inspect(args):
@@ -68,8 +67,7 @@ def cmd_inspect(args):
 
 def cmd_demo(args):
     """Lance la démo interactive."""
-    demo_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "scripts", "run_demo.py"))
-    subprocess.run([sys.executable, demo_file])
+    subprocess.run([sys.executable, "-m", "foq.demo"])
 
 
 def cmd_setup(args):

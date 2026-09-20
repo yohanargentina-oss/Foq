@@ -53,4 +53,5 @@ Read this before installing or running Foq. These facts are not suggestions.
    | `Modèle introuvable` / model file missing | setup not run | `foq setup` |
    | server not responding on 8089/8090 | launcher not started | `foq serve` or the `start_foq_*` scripts |
 
-Usage guide for delegating decisions to Foq: [docs/AGENT_GUIDE.md](docs/AGENT_GUIDE.md).
+Usage examples for delegating decisions to Foq: the Quickstart section of
+[README.md](README.md) and the primitives in `foq/schemas.py`.

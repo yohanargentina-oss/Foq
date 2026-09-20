@@ -1,7 +1,0 @@
-{
-  "model_alias": "foq-8b-lora",
-  "temperature": 0.22779501576120623,
-  "ece": 0.0,
-  "brier_score": 0.0,
-  "timestamp": "2026-09-19T08:51:24.102135"
-}

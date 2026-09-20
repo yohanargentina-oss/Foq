@@ -20,13 +20,14 @@ from .patches import appliquer_correctifs
 # désactivables via FoqEngine(patches=False) ou engine.patches_enabled = False.
 PATCHES_PAR_DEFAUT = True
 
-# Seuil d'abstention mesuré sur 500 cas aveugles (docs/BENCHMARKS.md) :
+# Seuil d'abstention mesuré sur 500 cas aveugles (BENCHMARKS.md) :
 # conf >= 0.95 → 8B autonome fiable ; en dessous → needs_review (+5,6 pts mesurés).
 SEUIL_REVIEW_MESURE = 0.95
 
-# Profil de calibration par défaut : racine du dépôt, indépendante du répertoire de travail
+# Profil de calibration par défaut : embarqué dans le paquet, indépendant du
+# répertoire de travail et de l'installation (pip ou dépôt).
 _DEFAULT_PROFILE_PATH = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "calibration_profile.json"
+    os.path.dirname(os.path.abspath(__file__)), "calibration_profile.json"
 )
 
 

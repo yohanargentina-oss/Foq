@@ -1,10 +1,9 @@
 """
-Script de démonstration interactif pour Foq.
+Démonstration interactive de Foq (`foq demo`).
 Montre des prises de décision instantanées avec scores de probabilité calibrés.
 """
 
 import sys
-import os
 
 if sys.stdout.encoding != "utf-8":
     try:
@@ -12,11 +11,8 @@ if sys.stdout.encoding != "utf-8":
     except Exception:
         pass
 
-# Ajouter le répertoire parent au PYTHONPATH
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
-from foq.engine import FoqEngine
-from foq.schemas import BinaryChoice, ClassificationChoice, Boolean, Choice, Score
+from .engine import FoqEngine
+from .schemas import BinaryChoice, ClassificationChoice, Boolean, Choice, Score
 
 
 def print_separator(title: str):
