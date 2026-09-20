@@ -7,32 +7,32 @@ if hasattr(sys.stdout, "reconfigure"):
 
 
 def analyze_ad_creative(creative_text: str, engine: FoqEngine) -> dict:
-    """Analyse un script/post publicitaire en une passe Système 1."""
+    """Analyze an ad creative / copy in a single System 1 pass."""
     questions = {
         "funnel_stage": Choice(
             "Customer funnel stage target",
             choices={
-                "top": "Top of Funnel (Notoriete / Decouverte / Probleme)",
-                "middle": "Middle of Funnel (Comparaison / Solution / Demo)",
-                "bottom": "Bottom of Funnel (Offre / Conversion / Promo)",
-                "retention": "Post-Achat (Fidelisation / Avis)",
+                "top": "Top of Funnel (Brand awareness / Problem discovery)",
+                "middle": "Middle of Funnel (Comparison / Product demo / Solution)",
+                "bottom": "Bottom of Funnel (Direct offer / Conversion / Discount)",
+                "retention": "Post-Purchase (Retention / Reviews / Upsell)",
             },
         ),
         "hook_style": Choice(
             "Creative hook angle used",
             choices={
-                "ugc_testimonial": "Temoignage client / Avis spontane",
-                "pain_point": "Probleme / Frustration / Douleur",
-                "behind_the_scenes": "Coulisses / Fabrication / Storytelling",
-                "product_demo": "Demonstration produit / Solution",
-                "discount_offer": "Code promo / Offre reduction / Urgence",
+                "ugc_testimonial": "Customer testimonial / UGC review",
+                "pain_point": "Frustration / Problem agitation",
+                "behind_the_scenes": "Behind the scenes / Craftsmanship",
+                "product_demo": "Product feature demo",
+                "discount_offer": "Discount code / Promotional urgency",
             },
         ),
-        "has_clear_cta": Boolean("Le contenu contient-il un appel a l action clair (CTA) ?"),
-        "risk_claims": Boolean("Y a-t-il des allegations medicales, trompeuses ou a risque ?"),
+        "has_clear_cta": Boolean("Does the content include a clear call to action (CTA)?"),
+        "risk_claims": Boolean("Are there misleading or unverified medical/compliance claims?"),
         "virality_potential": Score(
-            "Score de potentiel viral ou d engagement",
-            levels={"1": "Faible / Banal", "2": "Moyen", "3": "Fort / Tres viral"}
+            "Engagement and virality potential",
+            levels={"1": "Low / Generic", "2": "Moderate", "3": "High / Viral"}
         ),
     }
 
@@ -70,19 +70,19 @@ def analyze_ad_creative(creative_text: str, engine: FoqEngine) -> dict:
 
 
 def route_creative(analysis: dict) -> str:
-    """Aiguille automatiquement le contenu vers le bon canal selon l'analyse."""
+    """Route content to the appropriate campaign channel based on analysis."""
     if analysis["risk_claims"]["value"] is True or "risk_claims" in analysis["needs_human_review"]:
-        return "🚨 File de moderation manuelle (Risque de claim ou doute de conformite)"
+        return "🚨 Manual moderation queue (Compliance / Misleading claim risk)"
 
     stage = analysis["funnel_stage"]["value"]
     style = analysis["hook_style"]["value"]
 
     if stage == "bottom" or analysis["has_clear_cta"]["value"]:
-        return "🎯 Campagne Retargeting / Conversion directe (Meta Ads BOFU)"
+        return "🎯 Direct conversion campaign (BOFU Retargeting)"
     elif stage == "top" and style in ("ugc_testimonial", "pain_point"):
-        return "📱 Campagne Acquisition TikTok / Reels (TOFU Cold Audience)"
+        return "📱 TikTok / Reels Cold Audience acquisition (TOFU)"
     else:
-        return "📊 Campagne Nurturing / Middle of Funnel"
+        return "📊 Nurturing / Middle of Funnel campaign"
 
 
 if __name__ == "__main__":
@@ -90,31 +90,31 @@ if __name__ == "__main__":
 
     test_samples = [
         (
-            "UGC Coussin Ergonomique",
-            "J'ai teste 10 coussins ergonomiques differents pour mes douleurs de nuque le matin. "
-            "Celui-ci est le seul qui a elimine mes migraines en 3 nuits. "
-            "Cliquez sur le lien dans ma bio pour -20% avec le code NUQUE20 !"
+            "Ergonomic Pillow UGC",
+            "I tried 10 different ergonomic pillows for morning neck pain. "
+            "This one completely eliminated my stiffness in 3 nights. "
+            "Click the link in bio for 20% off with code NECK20!"
         ),
         (
-            "Coulisses Fabrication Bureau",
-            "Saviez-vous que 80% des bureaux assis-debout tombent en panne apres 6 mois ? "
-            "Voici comment nous concevons notre moteur a double verin dans nos ateliers a Lyon."
+            "Desk Manufacturing Behind The Scenes",
+            "Did you know that 80% of standing desks fail within 6 months? "
+            "Here is how we engineer dual-motor columns in our workshop."
         ),
         (
-            "Allégation médicale trompeuse",
-            "Cette tisane guerit definitivement 100% de vos insomnies graves et remplace tous vos traitements medicaux sans ordonnance !"
+            "Misleading Medical Claim",
+            "This herbal tea permanently cures 100% of severe insomnia and replaces all prescription medication!"
         ),
         (
-            "Acquisition TOFU Conforme (Douleur / Posture)",
-            "Tu passes 8h par jour assis le dos voute devant ton ecran ? Voici 3 etirements simples a faire directement sur ta chaise."
+            "Compliant TOFU Educational Hook",
+            "Sitting 8 hours a day hunched over your laptop? Here are 3 simple desk stretches you can do right now."
         ),
     ]
 
     for title, sample in test_samples:
         print(f"\n==================================================")
         print(f"[TEST] {title}")
-        print(f"Texte : \"{sample.strip()}\"")
+        print(f"Text: \"{sample.strip()}\"")
         analysis = analyze_ad_creative(sample, engine)
-        print("\nResultat de l'analyse Foq (Systeme 1) :")
+        print("\nFoq System 1 analysis:")
         print(json.dumps(analysis, indent=2, ensure_ascii=False))
-        print("\nAiguillage automatique :", route_creative(analysis))
+        print("\nAutomated routing:", route_creative(analysis))

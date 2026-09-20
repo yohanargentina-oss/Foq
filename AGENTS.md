@@ -34,7 +34,6 @@ Read this before installing or running Foq. These facts are not suggestions.
 
    ```bash
    foq serve                 # or: start_foq_server.cmd / .sh  (port 8089)
-   start_foq_8b_server.cmd   # or .sh                          (port 8090)
    ```
 
    The launchers prefer the Foq build in `~/.local/bin/foq-llama/` over any

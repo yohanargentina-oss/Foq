@@ -1,7 +1,7 @@
 """
-Tests unitaires hors-ligne (aucun serveur Foq requis).
-Vérifie la propagation des erreurs, le comportement fail-closed du WAF
-et la résolution du profil de calibration par défaut.
+Offline unit tests (no running Foq server required).
+Verifies error propagation, fail-closed WAF behavior,
+and default calibration profile resolution.
 """
 
 import json
@@ -17,18 +17,18 @@ REPO_ROOT = Path(__file__).parent.parent
 
 
 class TestErrorPropagation(unittest.TestCase):
-    """system_one ne doit JAMAIS renvoyer de réponse inventée quand le serveur échoue."""
+    """system_one must never invent or return hallucinated data when the server fails."""
 
     def setUp(self):
         self.engine = FoqEngine()
-        self.failed = {"success": False, "error": "Erreur de communication avec le serveur Foq: boom"}
+        self.failed = {"success": False, "error": "Communication failure with Foq server: connection refused"}
 
     def test_system_one_raises_connection_error(self):
         with mock.patch.object(self.engine, "decide", return_value=self.failed):
             with self.assertRaises(FoqConnectionError):
                 self.engine.system_one(
-                    state="Contexte de test",
-                    questions={"q": Boolean("Question de test ?")},
+                    state="Test context",
+                    questions={"q": Boolean("Test question?")},
                 )
 
     def test_extract_raises_connection_error(self):
@@ -37,15 +37,15 @@ class TestErrorPropagation(unittest.TestCase):
             self.engine.client, "post", side_effect=httpx.ConnectError("refused")
         ):
             with self.assertRaises(FoqConnectionError):
-                self.engine.extract(state="Contexte", schema={"type": "object"})
+                self.engine.extract(state="Context", schema={"type": "object"})
 
 
 class TestSecurityFailClosed(unittest.TestCase):
-    """Le WAF doit bloquer (fail-closed) quand le moteur Foq est indisponible."""
+    """The WAF must fail closed (block) when the Foq engine is unreachable."""
 
     def setUp(self):
         self.engine = FoqEngine()
-        self.failed = {"success": False, "error": "Erreur de communication avec le serveur Foq: boom"}
+        self.failed = {"success": False, "error": "Communication failure with Foq server: connection refused"}
         self.guard = FoqSecurityGuard(engine=self.engine)
 
     def test_inspect_fail_closed(self):
@@ -68,7 +68,7 @@ class TestSecurityFailClosed(unittest.TestCase):
 
 class TestEngineLifecycle(unittest.TestCase):
     def test_default_profile_resolved_from_repo_root(self):
-        """Le profil par défaut doit être chargé même depuis un autre répertoire de travail."""
+        """Default profile must resolve even from another working directory."""
         expected = json.loads((REPO_ROOT / "foq" / "calibration_profile.json").read_text(encoding="utf-8"))
         old_cwd = os.getcwd()
         with tempfile.TemporaryDirectory() as tmp:
@@ -87,7 +87,7 @@ class TestEngineLifecycle(unittest.TestCase):
 
 
 class TestNeedsReviewFlag(unittest.TestCase):
-    """Le drapeau d'abstention : needs_review True sous le seuil de confiance."""
+    """Abstention flag: needs_review is True when below confidence threshold."""
 
     def setUp(self):
         self.engine = FoqEngine()
@@ -96,7 +96,7 @@ class TestNeedsReviewFlag(unittest.TestCase):
         return {
             "success": True,
             "decision_key": "A",
-            "decision_label": "Oui",
+            "decision_label": "Yes",
             "confidence": confidence,
             "calibrated_probabilities": {"A": confidence, "B": round(1 - confidence, 4)},
             "raw_probabilities": {"A": confidence, "B": round(1 - confidence, 4)},
@@ -111,8 +111,8 @@ class TestNeedsReviewFlag(unittest.TestCase):
             ),
         ):
             resp = self.engine.system_one(
-                state="Contexte",
-                questions={"q": Boolean("Question ?")},
+                state="Context",
+                questions={"q": Boolean("Question?")},
                 min_confidence=0.8,
             )
         self.assertTrue(resp.q.needs_review)
@@ -126,8 +126,8 @@ class TestNeedsReviewFlag(unittest.TestCase):
             ),
         ):
             resp = self.engine.system_one(
-                state="Contexte",
-                questions={"q": Boolean("Question ?")},
+                state="Context",
+                questions={"q": Boolean("Question?")},
                 min_confidence=0.8,
             )
         self.assertFalse(resp.q.needs_review)
@@ -141,8 +141,8 @@ class TestNeedsReviewFlag(unittest.TestCase):
             ),
         ):
             resp = self.engine.system_one(
-                state="Contexte",
-                questions={"q": Boolean("Question ?")},
+                state="Context",
+                questions={"q": Boolean("Question?")},
             )
         self.assertIsNone(getattr(resp.q, "needs_review", None))
 

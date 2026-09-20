@@ -31,7 +31,7 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://foq.fr"
-Documentation = "https://github.com/yohanargentina-oss/Foq/tree/main/docs"
+Documentation = "https://github.com/yohanargentina-oss/Foq#readme"
 Repository = "https://github.com/yohanargentina-oss/Foq.git"
 Issues = "https://github.com/yohanargentina-oss/Foq/issues"
 

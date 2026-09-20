@@ -1,3 +1,7 @@
+"""
+Unit tests for Foq decision primitives (Boolean, Choice, Score, SecurityGuard).
+"""
+
 import unittest
 from foq import (
     FoqEngine,

@@ -1,7 +1,7 @@
 """
-Module de Calibration RLCD pour Foq.
-Garantit l'alignement strict entre probabilités prédites et réalité statistique :
-si Foq annonce 80 % de confiance, l'événement se produit réellement dans 80 % des cas.
+RLCD Calibration Module for Foq.
+Ensures strict alignment between predicted probabilities and empirical frequency:
+when Foq reports 80% confidence, the outcome occurs in 80% of cases.
 """
 
 import json
@@ -12,15 +12,15 @@ import numpy as np
 
 
 class BrierScore:
-    """Calcul du Brier Score (règle de score strictement propre)."""
+    """Computes the Brier Score (strictly proper scoring rule)."""
 
     @staticmethod
     def compute(probabilities: List[float], outcomes: List[int]) -> float:
         """
-        probabilities: probabilités attribuées à la classe vraie (ou vecteur p_i)
-        outcomes: 1 si correct, 0 si incorrect
+        probabilities: probabilities assigned to the true class (or probability vector)
+        outcomes: 1 if correct, 0 if incorrect
         """
-        assert len(probabilities) == len(outcomes), "Tailles discordantes."
+        assert len(probabilities) == len(outcomes), "Mismatched dimensions."
         if not probabilities:
             return 0.0
         diffs = [(p - y) ** 2 for p, y in zip(probabilities, outcomes)]
@@ -29,9 +29,9 @@ class BrierScore:
 
 class ExpectedCalibrationError:
     """
-    Calcul de l'ECE (Expected Calibration Error).
-    Divise les prédictions en M bins d'intervalles de confiance et mesure l'écart absolu
-    entre l'exactitude empirique et la confiance moyenne.
+    Computes Expected Calibration Error (ECE).
+    Partitions predictions into M confidence bins and computes the absolute
+    gap between empirical accuracy and average confidence.
     """
 
     def __init__(self, n_bins: int = 10):
@@ -39,8 +39,8 @@ class ExpectedCalibrationError:
 
     def compute(self, confidences: List[float], correctness: List[bool]) -> Dict[str, Any]:
         """
-        confidences: probabilité du choix retenu (ex: [0.85, 0.92, ...])
-        correctness: True si la prédiction était exacte, False sinon
+        confidences: probability of selected choice (e.g. [0.85, 0.92, ...])
+        correctness: True if prediction matched ground truth, False otherwise
         """
         n = len(confidences)
         if n == 0:
@@ -57,7 +57,6 @@ class ExpectedCalibrationError:
             bin_lower = bin_boundaries[i]
             bin_upper = bin_boundaries[i + 1]
 
-            # Éléments dans le bin
             if i == self.n_bins - 1:
                 in_bin = (conf >= bin_lower) & (conf <= bin_upper)
             else:
@@ -87,23 +86,23 @@ class ExpectedCalibrationError:
 
 class TemperatureScaler:
     """
-    Couche de mise à l'échelle par température (Temperature Scaling / Platt Scaling).
-    Ajuste la température T pour éliminer la sur-confiance des réseaux de neurones.
+    Temperature Scaling layer (Platt Scaling).
+    Calibrates temperature T to eliminate neural network overconfidence.
     """
 
     def __init__(self, temperature: float = 1.0):
         self.temperature = max(0.01, float(temperature))
 
     def scale_logits(self, logits: Dict[str, float]) -> Dict[str, float]:
-        """Applique la température T aux logits avant softmax."""
+        """Applies temperature T to logits prior to softmax."""
         if abs(self.temperature - 1.0) < 1e-4:
             return logits
         return {k: v / self.temperature for k, v in logits.items()}
 
     def scale_probabilities(self, logprobs: Dict[str, float]) -> Dict[str, float]:
         """
-        Prend des logprobs brutes ln(p_i), re-calibre via la température T
-        et renvoie les nouvelles probabilités normalisées.
+        Takes raw logprobs ln(p_i), recalibrates via temperature T,
+        and returns normalized probabilities.
         """
         keys = list(logprobs.keys())
         raw_vals = np.array([logprobs[k] for k in keys])
@@ -117,8 +116,8 @@ class TemperatureScaler:
 
     def fit(self, dataset: List[Dict[str, Any]]) -> float:
         """
-        Optimise la température T sur un ensemble d'exemples de validation
-        pour minimiser la perte de calibration (Log-Loss / NLL).
+        Optimizes temperature T on validation set
+        to minimize negative log-likelihood (NLL / Log-Loss).
         """
         from scipy.optimize import minimize_scalar
 
@@ -147,7 +146,7 @@ class TemperatureScaler:
 
 
 class CalibrationProfile:
-    """Sauvegarde et chargement d'un profil de calibration."""
+    """Saves and loads a calibration profile."""
 
     _DEFAULT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "calibration_profile.json")
 

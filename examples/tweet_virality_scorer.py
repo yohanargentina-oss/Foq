@@ -7,38 +7,38 @@ if hasattr(sys.stdout, "reconfigure"):
 
 
 def score_tweet(tweet_text: str, engine: FoqEngine) -> dict:
-    """Analyse un tweet ou hook de post en une passe Système 1 (25 ms)."""
+    """Analyze a tweet or post hook in a single System 1 pass (25 ms)."""
     questions = {
         "viral_trigger": Choice(
-            "Quel est le levier psychologique dominant utilise dans ce post ?",
+            "What is the primary psychological hook used in this post?",
             choices={
-                "curiosity_gap": "Boucle de curiosite / Mystere non resolu",
-                "contrarian": "Avis a contre-courant / Controverse / Mythe casse",
-                "high_value_framework": "Valeur actionnable / Framework / Guide pratique",
-                "vulnerable_story": "Storytelling personnel / Echec surmonte",
-                "boring_announcement": "Annonce banale / Auto-promo sans angle",
+                "curiosity_gap": "Curiosity gap / Unresolved mystery",
+                "contrarian": "Contrarian take / Myth busting / Hot take",
+                "high_value_framework": "Actionable framework / Practical playbook",
+                "vulnerable_story": "Personal storytelling / Overcoming failure",
+                "boring_announcement": "Generic update / Self-promotion without hook",
             },
         ),
         "virality_score": Score(
-            "Potentiel de repartage (Retweets / Reposts) et de diffusion algorithmique",
+            "Repost potential and algorithmic reach",
             levels={
-                "1": "Faible (Moins de 10 retweets - Banal / Plat)",
-                "2": "Moyen (Portee organique standard)",
-                "3": "Bon (Fort engagement de la communaute existante)",
-                "4": "Tres fort (Potentiel de breakout hors de l'audience)",
-                "5": "Viral massif (Hook exceptionnel / Debat generalise)",
+                "1": "Low (Under 10 reposts - Generic / Flat)",
+                "2": "Moderate (Standard organic reach)",
+                "3": "Good (Strong engagement from existing followers)",
+                "4": "High (Out-of-network breakout potential)",
+                "5": "Viral breakout (Exceptional hook / Broad debate)",
             },
         ),
         "comment_bait": Boolean(
-            "Le post incite-t-il naturellement les gens a donner leur avis ou a debattre en reponse ?"
+            "Does the post naturally prompt replies or debate in comments?"
         ),
         "is_cheap_clickbait": Boolean(
-            "Le post utilise-t-il un formatage force, racoleur ou vide de substance reelle ?"
+            "Does the post use low-effort engagement bait or empty sensationalism?"
         ),
     }
 
     result = engine.system_one(
-        state=f"Brouillon de Tweet / Post :\n\"{tweet_text.strip()}\"",
+        state=f"Draft Tweet / Post:\n\"{tweet_text.strip()}\"",
         questions=questions,
         min_confidence=0.80,
     )
@@ -55,17 +55,17 @@ def score_tweet(tweet_text: str, engine: FoqEngine) -> dict:
 
 
 def get_recommendation(analysis: dict) -> str:
-    """Genere le diagnostic et le conseil d'optimisation."""
+    """Generate diagnostic feedback and actionable advice."""
     if analysis["cheap_clickbait"]:
-        return "⚠️ Trop racoleur / Cringe : apportez plus de substance pour eviter de devaleuriser votre compte."
+        return "⚠️ Low-effort clickbait: add concrete substance to protect audience trust."
 
     score = int(analysis["score"])
     if score >= 4:
-        return "🔥 Excellent hook : tres fort potentiel viral."
+        return "🔥 Excellent hook: strong viral breakout potential."
     elif score == 3:
-        return "👍 Bon post de fond pour votre audience fidele."
+        return "👍 Solid post for your existing core audience."
     else:
-        return "💤 Manque d'angle : retravaillez la 1ere ligne pour creer une rupture de pattern."
+        return "💤 Needs a sharper angle: rework the opening line to break pattern."
 
 
 if __name__ == "__main__":
@@ -73,30 +73,30 @@ if __name__ == "__main__":
 
     test_tweets = [
         (
-            "Hook Contre-Intuitif (Tech / Business)",
-            "J'ai passe 10 ans a coder 60h/semaine. C'etait la pire erreur de ma vie.\n\nVoici les 4 regles de travail asynchrone qui ont triple mes revenus en travaillant 4h par jour :"
+            "Contrarian Work Philosophy",
+            "I spent 10 years coding 60h/week. It was the biggest mistake of my career.\n\nHere are 4 async leverage rules that tripled my income on 4h of deep work a day:"
         ),
         (
-            "Annonce corporate sans angle",
-            "Nous sommes ravis de vous annoncer la sortie de notre version 2.4 de notre logiciel comptable. N'hesitez pas a telecharger la mise a jour sur notre site."
+            "Generic Corporate Announcement",
+            "We are thrilled to announce version 2.4 of our accounting software. Download the new release on our website."
         ),
         (
-            "Controverse / Débat d'opinion",
-            "Opinion impopulaire : Le teletravail a 100% detruit la culture des juniors dans les entreprises de moins de 20 personnes. Vous en pensez quoi ?"
+            "Spicy Discussion Prompt",
+            "Unpopular opinion: Full remote work destroys junior mentorship in teams under 20 people. Change my mind."
         ),
         (
-            "Clickbait artificiel",
-            "Ce secret va changer votre vie a tout jamais... 99% des gens l'ignorent. Likez et commentez 'OUI' pour recevoir le PDF secret en DM."
+            "Low-Effort Engagement Bait",
+            "This secret will change your life forever... 99% of people have no clue. Like and comment 'YES' for the secret PDF in DM."
         ),
     ]
 
     print("=" * 65)
-    print("📊 ANALYSEUR & PREDICTEUR DE VIRALITE DE TWEETS (Foq Systeme 1)")
+    print("📊 TWEET VIRALITY PREDICTOR & ANALYZER (Foq System 1)")
     print("=" * 65)
 
     for title, tweet in test_tweets:
         print(f"\n[Test] {title}")
-        print(f"Texte : \"{tweet}\"")
+        print(f"Text: \"{tweet}\"")
         analysis = score_tweet(tweet, engine)
         print(json.dumps(analysis, indent=2, ensure_ascii=False))
-        print("Verdict :", get_recommendation(analysis))
+        print("Verdict:", get_recommendation(analysis))
