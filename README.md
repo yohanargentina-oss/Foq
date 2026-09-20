@@ -1,9 +1,10 @@
 # ⚡ Foq
 
-**Typed System 1 decisions in ~25 ms, 100% local.** Foq is a decision engine for
-AI agents: no prose, no tokens generated — one feed-forward pass over your
-context returns calibrated probabilities on typed questions (booleans, choices,
-scores, Pydantic objects).
+**The free, open-source, 100% local alternative to Jev.** Foq is a decision
+engine for AI agents built on the same idea as TypeSafe's "System One Model":
+no prose, no tokens generated — one feed-forward pass over your context returns
+calibrated probabilities on typed questions (booleans, choices, scores, Pydantic
+objects) in ~25 ms, on your own machine, with no waitlist and no per-token bill.
 
 ```python
 from foq import FoqEngine, Boolean, Choice
@@ -18,6 +19,31 @@ res = engine.system_one(
 )
 print(res.danger.answer, res.danger.confidence)   # True 0.98 — in milliseconds
 ```
+
+## The free, local alternative to Jev
+
+[Jev](https://typesafe.ai) by TypeSafe AI made "System One Models" famous in
+September 2026 — and it is a closed, cloud-only API behind an early-access
+waitlist. Foq gives **everyone** the same category of typed System 1 decisions,
+**for free and 100% locally**, today:
+
+|  | **Jev** (TypeSafe AI) | **Foq** |
+|---|---|---|
+| Hosting | Cloud API only (`api.typesafe.ai`) | **100% local** — nothing leaves your machine |
+| Access | Early access, waitlist | **Available now** — `pip install foq` |
+| Cost | Usage-based ($0.042/M input tokens) | **Free, forever** |
+| Model weights | Closed | **Open** — Apache 2.0, SHA-256 pinned |
+| Code | Closed | **MIT** |
+| Offline, air-gapped, GDPR-safe | No | **Yes** |
+| Latency | Cloud round-trip on top of inference | **~25 ms end-to-end on your machine** |
+
+Looking for an **open-source Jev**, a **local Jev**, a **free Jev alternative**
+or a **self-hosted System One Model**? You just found it — and you never have
+to send your data to anyone's cloud.
+
+> Foq is an independent project, not affiliated with, sponsored or endorsed by
+> TypeSafe AI. "Jev" is a trademark of its respective owner, used here only to
+> identify the product Foq is an alternative to.
 
 ## Installation
 

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "foq"
 version = "1.0.5"
-description = "⚡ Foq - Ultra-fast, deterministic System 1 decision engine for AI agents (100% Local)"
+description = "⚡ Foq — the free, open-source, 100% local alternative to Jev: typed System 1 decision engine for AI agents (~25 ms)"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
@@ -23,7 +23,7 @@ classifiers = [
 authors = [
     { name = "Foq Team" }
 ]
-keywords = ["system1", "ai", "logits", "decision", "typed", "firewall", "fastapi"]
+keywords = ["jev", "jev-alternative", "system-one-model", "system1", "ai", "decision", "decision-engine", "ai-agents", "typed", "local", "open-source", "llama-cpp", "gguf", "firewall"]
 dependencies = [
     "httpx>=0.24.0",
     "numpy>=1.24.0",
