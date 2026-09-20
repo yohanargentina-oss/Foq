@@ -74,12 +74,13 @@ Full methodology, replay commands and all charts: **[BENCHMARKS.md](BENCHMARKS.m
 ## Provenance & license
 
 - Code: **MIT**.
-- The Foq 8B decision model is a ternary-quantized build derived from Apache-2.0
-  open-weight families; attribution notices are retained in the GGUF metadata.
-  It is downloaded from Foq's verified re-host on Hugging Face (SHA-256 pinned).
-  Foq never redistributes model weights.
+- Model: the Foq 8B reference decision model is
+  [Ternary Bonsai 8B](https://huggingface.co/prism-ml/Ternary-Bonsai-8B-gguf)
+  by **PrismML** — Apache 2.0, Qwen3-8B architecture, 1.58-bit ternary weights
+  (PQ2_0 format). Foq re-hosts a verified copy (SHA-256 pinned) and adds its
+  decision calibration layer on top. Foq never redistributes model weights.
 - Runtime: llama.cpp (MIT) — Foq ships repackaged builds of the
-  [PrismML fork](https://github.com/PrismML-Eng/llama.cpp) (PQ2_0 ternary
-  format) on [Releases](https://github.com/yohanargentina-oss/Foq/releases).
+  [PrismML fork](https://github.com/PrismML-Eng/llama.cpp) (PQ2_0 kernels) on
+  [Releases](https://github.com/yohanargentina-oss/Foq/releases).
 
 Setup contract for AI agents (Claude, Codex, ZCode…): **[AGENTS.md](AGENTS.md)**.

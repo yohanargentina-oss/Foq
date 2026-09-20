@@ -3,7 +3,8 @@
 Read this before installing or running Foq. These facts are not suggestions.
 
 1. **Model — Foq 8B, mandatory.** The decision model is
-   `foq-reflex-8b-pq2_0.gguf` (**Foq 8B**, 2.2 GB). Install it with:
+   `foq-reflex-8b-pq2_0.gguf` (**Foq 8B**, 2.2 GB — re-host of PrismML's
+   Ternary Bonsai 8B, Apache 2.0, PQ2_0 format). Install it with:
 
    ```bash
    foq setup   # downloads to ~/.models/foq/, SHA-256 verified
