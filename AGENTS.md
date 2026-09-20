@@ -19,6 +19,9 @@ Read this before installing or running Foq. These facts are not suggestions.
 
    - `foq-llama-windows-x64.zip` — Windows x64, CUDA 12.4, self-contained
    - `foq-llama-linux-x64.tar.gz` — Linux x64, CUDA 12.4 (NVIDIA driver ≥ 550)
+   - `foq-llama-macos-arm64.tar.gz` — macOS Apple Silicon (Metal backend)
+   - `foq-llama-macos-x64.tar.gz` — macOS Intel (CPU)
+   - `foq-llama-apple-xcframework.zip` — iOS/iPadOS app integration (Xcode)
 
    **Official ggml-org llama.cpp builds CANNOT run this model.** They fail at
    load with an *unknown tensor type* error. Never install official llama.cpp

@@ -30,9 +30,9 @@ pip install foq            # live on PyPI
 llama.cpp fork with PQ2_0 kernels, [PrismML-Eng/llama.cpp](https://github.com/PrismML-Eng/llama.cpp))
 can load — `llama-server` from
 [Releases](https://github.com/yohanargentina-oss/Foq/releases), unpacked to
-`~/.local/bin/foq-llama/` (Windows x64 CUDA and Linux x64 CUDA builds are
-published). Official ggml-org builds reject the file (unknown tensor type).
-`foq setup` checks this for you.
+`~/.local/bin/foq-llama/` (Windows, Linux and macOS builds are published,
+plus an Apple xcframework for iOS app integration). Official ggml-org builds
+reject the file (unknown tensor type). `foq setup` checks this for you.
 
 ## Quickstart
 
