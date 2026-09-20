@@ -139,8 +139,6 @@ def cmd_setup(args):
     print("      uniquement par la build llama.cpp Foq. Les builds officielles")
     print("      ggml-org rejettent le fichier (type de tenseur inconnu).")
 
-    import re as _re
-
     RELEASES_URL = "https://github.com/yohanargentina-oss/Foq/releases"
     foq_llama_dir = os.path.join(home, ".local", "bin", "foq-llama")
 
@@ -165,16 +163,28 @@ def cmd_setup(args):
     if llama:
         print("      Trouvé —", llama)
         banniere = _banniere_llama(llama)
-        if _re.search(r"version:\s*\d+\s*\(", banniere):
-            print("      [!] Build llama.cpp OFFICIELLE détectée : elle ne peut PAS charger")
-            print("          le format PQ2_0. Installez la build Foq :")
-            print(f"          {RELEASES_URL}  ->  ~/.local/bin/foq-llama/")
-        elif not banniere.strip():
-            print("      [!] Bannière de version illisible — build non vérifiée. Si le")
-            print("          serveur refuse le modèle, prenez la build Foq :")
-            print(f"          {RELEASES_URL}")
-        else:
+        # Une build est reconnue Foq par son emplacement d'installation, une
+        # mention PQ2_0/Foq dans sa bannière, ou la build de référence 10685.
+        # Tout le reste (officielle ggml-org « 0.x-dev (build N…) » comprise)
+        # est prévenu : rejet garanti du type de tenseur 142.
+        est_build_foq = (
+            llama.lower().startswith(foq_llama_dir.lower())
+            or "pq2_0" in banniere.lower()
+            or "foq" in banniere.lower()
+            or "build 10685" in banniere
+        )
+        if est_build_foq:
             print("      OK — build Foq compatible PQ2_0.")
+        else:
+            if banniere.strip():
+                print("      [!] Build llama.cpp NON Foq détectée (officielle ggml-org ou")
+                print("          inconnue) : elle ne peut PAS charger le format PQ2_0")
+                print("          (erreur « invalid ggml type 142 » au chargement).")
+            else:
+                print("      [!] Bannière --version illisible — build non identifiable :")
+                print("          si le serveur refuse le modèle, c'est qu'elle n'est pas Foq.")
+            print("          Installez la build Foq :")
+            print(f"          {RELEASES_URL}  ->  ~/.local/bin/foq-llama/")
     else:
         print("      [À FAIRE] llama-server introuvable.")
         print("      Installez la build llama.cpp Foq (support PQ2_0) depuis :")

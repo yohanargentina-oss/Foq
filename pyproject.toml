@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "foq"
-version = "1.0.2"
+version = "1.0.3"
 description = "⚡ Foq - Ultra-fast, deterministic System 1 decision engine for AI agents (100% Local)"
 readme = "README.md"
 requires-python = ">=3.10"
