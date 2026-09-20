@@ -34,3 +34,13 @@ downloads/
 .DS_Store
 Thumbs.db
 *.log
+*.ini
+
+# Local scratch, data and tools
+.venv-train/
+foq_paint/
+foq_tweet_tester/
+site/
+data/
+scripts/
+uv.lock

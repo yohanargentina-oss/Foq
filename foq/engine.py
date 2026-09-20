@@ -14,11 +14,6 @@ from concurrent.futures import ThreadPoolExecutor
 
 from .calibration import TemperatureScaler, CalibrationProfile
 from .schemas import DecisionSchema, Structure
-from .patches import appliquer_correctifs
-
-# Correctifs déterministes des défauts connus (foq/patches.py) : activés par défaut,
-# désactivables via FoqEngine(patches=False) ou engine.patches_enabled = False.
-PATCHES_PAR_DEFAUT = True
 
 # Seuil d'abstention mesuré sur 500 cas aveugles (BENCHMARKS.md) :
 # conf >= 0.95 → 8B autonome fiable ; en dessous → needs_review (+5,6 pts mesurés).
@@ -60,13 +55,12 @@ class FoqEngine:
         base_url: str = "http://127.0.0.1:8089",
         profile_path: Optional[str] = None,
         timeout_seconds: float = 10.0,
-        patches: bool = PATCHES_PAR_DEFAUT,
         min_confidence: Optional[float] = SEUIL_REVIEW_MESURE,
+        patches: bool = False,
     ):
         self.base_url = base_url.rstrip("/")
         self.timeout_seconds = timeout_seconds
         self.client = httpx.Client(base_url=self.base_url, timeout=timeout_seconds)
-        self.patches_enabled = patches
         self.min_confidence = min_confidence
 
         # Charger profil de calibration si existant
@@ -191,8 +185,6 @@ class FoqEngine:
             }
         latency_ms = (time.perf_counter() - t0) * 1000
         result = self._parse_completion_response(data, schema, calibrate, latency_ms)
-        if self.patches_enabled:
-            result = appliquer_correctifs(context, question=schema.question, schema=schema, resultat=result)
         seuil = min_confidence if min_confidence is not None else self.min_confidence
         if seuil is not None and result.get("success"):
             result["needs_review"] = result["confidence"] < seuil
@@ -228,8 +220,6 @@ class FoqEngine:
                 }
         latency_ms = (time.perf_counter() - t0) * 1000
         result = self._parse_completion_response(data, schema, calibrate, latency_ms)
-        if self.patches_enabled:
-            result = appliquer_correctifs(context, question=schema.question, schema=schema, resultat=result)
         seuil = min_confidence if min_confidence is not None else self.min_confidence
         if seuil is not None and result.get("success"):
             result["needs_review"] = result["confidence"] < seuil
