@@ -26,11 +26,13 @@ pip install foq            # live on PyPI
 ```
 
 **Runtime requirement**: the reference weights (`foq-reflex-8b-pq2_0.gguf`,
-2.2 GB) use the ternary **PQ2_0** format, which only the **Foq build of
-llama.cpp** can load — `llama-server` from
+2.2 GB) use the ternary **PQ2_0** format, which only the **Foq runtime** (the
+llama.cpp fork with PQ2_0 kernels, [PrismML-Eng/llama.cpp](https://github.com/PrismML-Eng/llama.cpp))
+can load — `llama-server` from
 [Releases](https://github.com/yohanargentina-oss/Foq/releases), unpacked to
-`~/.local/bin/foq-llama/`. Official ggml-org builds reject the file (unknown
-tensor type). `foq setup` checks this for you.
+`~/.local/bin/foq-llama/` (Windows x64 CUDA and Linux x64 CUDA builds are
+published). Official ggml-org builds reject the file (unknown tensor type).
+`foq setup` checks this for you.
 
 ## Quickstart
 
@@ -76,7 +78,8 @@ Full methodology, replay commands and all charts: **[BENCHMARKS.md](BENCHMARKS.m
   open-weight families; attribution notices are retained in the GGUF metadata.
   It is downloaded from Foq's verified re-host on Hugging Face (SHA-256 pinned).
   Foq never redistributes model weights.
-- Runtime: llama.cpp (MIT) — the Foq build ships on
-  [Releases](https://github.com/yohanargentina-oss/Foq/releases).
+- Runtime: llama.cpp (MIT) — Foq ships repackaged builds of the
+  [PrismML fork](https://github.com/PrismML-Eng/llama.cpp) (PQ2_0 ternary
+  format) on [Releases](https://github.com/yohanargentina-oss/Foq/releases).
 
 Setup contract for AI agents (Claude, Codex, ZCode…): **[AGENTS.md](AGENTS.md)**.

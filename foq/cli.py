@@ -162,14 +162,16 @@ def cmd_setup(args):
         print("      Trouvé —", llama)
         banniere = _banniere_llama(llama)
         # Une build est reconnue Foq par son emplacement d'installation, une
-        # mention PQ2_0/Foq dans sa bannière, ou la build de référence 10685.
-        # Tout le reste (officielle ggml-org « 0.x-dev (build N…) » comprise)
-        # est prévenu : rejet garanti du type de tenseur 142.
+        # mention PQ2_0/Foq dans sa bannière, la build de référence 10685, ou
+        # la ligne de version du fork (« 0.2.0-dev » ; l'officiel ggml-org est
+        # sur « 0.4.x-dev »). Tout le reste est prévenu : rejet garanti du
+        # type de tenseur 142.
         est_build_foq = (
             llama.lower().startswith(foq_llama_dir.lower())
             or "pq2_0" in banniere.lower()
             or "foq" in banniere.lower()
             or "build 10685" in banniere
+            or "0.2.0-dev" in banniere
         )
         if est_build_foq:
             print("      OK — build Foq compatible PQ2_0.")

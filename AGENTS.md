@@ -12,10 +12,13 @@ Read this before installing or running Foq. These facts are not suggestions.
    Do not download another GGUF, do not use the optional 27B, do not re-quantize.
 
 2. **Runtime — Foq llama.cpp build, mandatory.** The weights use the ternary
-   **PQ2_0** format (custom ggml tensor type). Only the **Foq build of
-   llama.cpp** can load it — get `llama-server` from
-   [Releases](https://github.com/yohanargentina-oss/Foq/releases) and unpack
-   it to `~/.local/bin/foq-llama/`.
+   **PQ2_0** format (custom ggml tensor type). Only the **Foq runtime** — the
+   llama.cpp fork with PQ2_0 kernels (PrismML-Eng/llama.cpp) — can load it.
+   Get it from [Releases](https://github.com/yohanargentina-oss/Foq/releases)
+   and unpack it to `~/.local/bin/foq-llama/`:
+
+   - `foq-llama-windows-x64.zip` — Windows x64, CUDA 12.4, self-contained
+   - `foq-llama-linux-x64.tar.gz` — Linux x64, CUDA 12.4 (NVIDIA driver ≥ 550)
 
    **Official ggml-org llama.cpp builds CANNOT run this model.** They fail at
    load with an *unknown tensor type* error. Never install official llama.cpp
