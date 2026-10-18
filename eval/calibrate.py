@@ -42,8 +42,9 @@ def load(tag, name):
     keys = sorted(rows[0]["logprobs"])
     L = np.array([[r["logprobs"][k] for k in keys] for r in rows])
     y = np.array([keys.index(r["gold"]) for r in rows])
-    biz = np.array([r["category"] in BUSINESS for r in rows])
-    return L, y, biz
+    cats = np.array([r["category"] for r in rows])
+    biz = np.isin(cats, list(BUSINESS))
+    return L, y, biz, cats
 
 
 def softmax(L, T):
@@ -120,14 +121,44 @@ def evaluate(L, y, T):
     return out
 
 
+HIGH_CONFIDENCE = [0.9, 0.95, 0.97, 0.98, 0.99]
+DEFAULT_THRESHOLD = 0.8  # foq.engine.SEUIL_REVIEW_MESURE
+
+
+def detail(L, y, cats, T):
+    """Per-category accuracy (overall and on decisions kept at the default threshold),
+    and accuracy above high confidence levels."""
+    p = softmax(L, T)
+    conf = p.max(axis=1)
+    correct = p.argmax(axis=1) == y
+    per_cat = {}
+    for c in sorted(set(cats)):
+        m = cats == c
+        kept = m & (conf >= DEFAULT_THRESHOLD)
+        per_cat[c] = {
+            "n": int(m.sum()), "correct": int(correct[m].sum()),
+            "accuracy_pct": round(float(correct[m].mean() * 100), 1),
+            "kept_at_default_threshold": int(kept.sum()),
+            "correct_kept": int(correct[kept].sum()),
+            "accuracy_on_kept_pct": round(float(correct[kept].mean() * 100), 1) if kept.any() else None,
+        }
+    high = []
+    for t in HIGH_CONFIDENCE:
+        m = conf >= t
+        k, ok = int(m.sum()), int(correct[m].sum())
+        high.append({"min_confidence": t, "decisions": k, "correct": ok,
+                     "accuracy_ci95_pct": wilson(ok, k)})
+    return {"default_threshold": DEFAULT_THRESHOLD, "per_category": per_cat, "high_confidence": high}
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--tag", required=True)
     ap.add_argument("--write-profile", help="also write a Foq calibration profile, e.g. foq/calibration_profile.json")
     args = ap.parse_args()
 
-    Lv, yv, _ = load(args.tag, "calib_val")
-    Lt, yt, bt = load(args.tag, "exam_test")
+    Lv, yv, _, _ = load(args.tag, "calib_val")
+    Lt, yt, bt, ct = load(args.tag, "exam_test")
 
     res = minimize_scalar(lambda T: nll(Lv, yv, T), bounds=BOUNDS, method="bounded",
                           options={"xatol": 1e-4})
@@ -150,6 +181,7 @@ def main():
             "old_profile": evaluate(Lt, yt, old_T),
             "fitted": evaluate(Lt, yt, T_fit),
         },
+        "on_exam_test_detail_fitted_T": detail(Lt, yt, ct, T_fit),
         "on_exam_test_by_group_fitted_T": {
             "business_categories": evaluate(Lt[bt], yt[bt], T_fit),
             "reasoning_puzzles": evaluate(Lt[~bt], yt[~bt], T_fit),

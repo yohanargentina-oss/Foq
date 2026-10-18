@@ -38,6 +38,34 @@ By task family (fitted T):
 | business categories | 325 | 78.2 % [73.3–82.3] | 10.08 % |
 | reasoning puzzles | 925 | 60.1 % [56.9–63.2] | 7.05 % |
 
+High confidence (fitted T): how often Foq is right when it is very sure:
+
+| Confidence at least | Decisions | Correct | Accuracy [95 % CI] |
+|---|---|---|---|
+| 0.9 | 143 | 138 | 96.5 % [92.1–98.5] |
+| 0.95 | 6 | 6 | 100.0 % [61.0–100.0] |
+| 0.97 | 0 | 0 | n/a |
+| 0.98 | 0 | 0 | n/a |
+| 0.99 | 0 | 0 | n/a |
+
+By category (fitted T; "kept" = confidence >= 0.8, the default `needs_review` threshold):
+
+| Category | Cases | Accuracy | Kept | Correct among kept | Accuracy on kept |
+|---|---|---|---|---|---|
+| causalite fallacie | 75 | 68.0 % | 23 | 22 | 95.7 % |
+| course position | 150 | 43.3 % | 6 | 4 | 66.7 % |
+| enigme linguistique | 100 | 55.0 % | 25 | 22 | 88.0 % |
+| maths contre intuitives | 125 | 62.4 % | 33 | 29 | 87.9 % |
+| negations multiples | 100 | 88.0 % | 72 | 64 | 88.9 % |
+| physiologie contre intuitive | 100 | 77.0 % | 31 | 30 | 96.8 % |
+| raisonnement spatial | 100 | 45.0 % | 13 | 5 | 38.5 % |
+| raisonnement temporel | 75 | 52.0 % | 10 | 7 | 70.0 % |
+| routage | 75 | 88.0 % | 38 | 37 | 97.4 % |
+| securite info | 100 | 88.0 % | 41 | 41 | 100.0 % |
+| sens commun | 100 | 58.0 % | 24 | 22 | 91.7 % |
+| sentiment | 75 | 81.3 % | 42 | 42 | 100.0 % |
+| triage | 75 | 52.0 % | 14 | 14 | 100.0 % |
+
 ## Foq 8B + LoRA decision adapter v1 (default when `foq setup` installed it)
 
 Temperature fitted on `calib_val` (1250 cases): **T = 2.6353**. Everything below is measured on `exam_test` (1250 cases, never used for fitting).
@@ -73,3 +101,31 @@ By task family (fitted T):
 |---|---|---|---|
 | business categories | 325 | 83.1 % [78.6–86.8] | 7.98 % |
 | reasoning puzzles | 925 | 62.7 % [59.5–65.8] | 5.76 % |
+
+High confidence (fitted T): how often Foq is right when it is very sure:
+
+| Confidence at least | Decisions | Correct | Accuracy [95 % CI] |
+|---|---|---|---|
+| 0.9 | 296 | 289 | 97.6 % [95.2–98.8] |
+| 0.95 | 152 | 150 | 98.7 % [95.3–99.6] |
+| 0.97 | 79 | 79 | 100.0 % [95.4–100.0] |
+| 0.98 | 38 | 38 | 100.0 % [90.8–100.0] |
+| 0.99 | 4 | 4 | 100.0 % [51.0–100.0] |
+
+By category (fitted T; "kept" = confidence >= 0.8, the default `needs_review` threshold):
+
+| Category | Cases | Accuracy | Kept | Correct among kept | Accuracy on kept |
+|---|---|---|---|---|---|
+| causalite fallacie | 75 | 81.3 % | 39 | 39 | 100.0 % |
+| course position | 150 | 45.3 % | 4 | 4 | 100.0 % |
+| enigme linguistique | 100 | 65.0 % | 26 | 24 | 92.3 % |
+| maths contre intuitives | 125 | 63.2 % | 49 | 46 | 93.9 % |
+| negations multiples | 100 | 85.0 % | 72 | 65 | 90.3 % |
+| physiologie contre intuitive | 100 | 75.0 % | 45 | 41 | 91.1 % |
+| raisonnement spatial | 100 | 47.0 % | 11 | 10 | 90.9 % |
+| raisonnement temporel | 75 | 45.3 % | 15 | 11 | 73.3 % |
+| routage | 75 | 88.0 % | 44 | 43 | 97.7 % |
+| securite info | 100 | 94.0 % | 61 | 61 | 100.0 % |
+| sens commun | 100 | 66.0 % | 34 | 34 | 100.0 % |
+| sentiment | 75 | 86.7 % | 43 | 43 | 100.0 % |
+| triage | 75 | 60.0 % | 22 | 19 | 86.4 % |

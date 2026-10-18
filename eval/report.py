@@ -52,6 +52,21 @@ def main():
                 "| Family | Cases | Accuracy [95 % CI] | ECE |", "|---|---|---|---|"]
         for k, v in g.items():
             out.append(f"| {k.replace('_', ' ')} | {v['n']} | {v['accuracy_pct']} % {ci(v['accuracy_ci95_pct'])} | {v['ece_pct']} % |")
+        d = r["on_exam_test_detail_fitted_T"]
+        out += ["", "High confidence (fitted T): how often Foq is right when it is very sure:", "",
+                "| Confidence at least | Decisions | Correct | Accuracy [95 % CI] |", "|---|---|---|---|"]
+        for x in d["high_confidence"]:
+            acc = (f"{x['correct'] / x['decisions'] * 100:.1f} % {ci(x['accuracy_ci95_pct'])}"
+                   if x["decisions"] else "n/a")
+            out.append(f"| {x['min_confidence']} | {x['decisions']} | {x['correct']} | {acc} |")
+        th = d["default_threshold"]
+        out += ["", f"By category (fitted T; \"kept\" = confidence >= {th}, the default `needs_review` threshold):", "",
+                "| Category | Cases | Accuracy | Kept | Correct among kept | Accuracy on kept |",
+                "|---|---|---|---|---|---|"]
+        for c, x in d["per_category"].items():
+            ak = f"{x['accuracy_on_kept_pct']} %" if x["accuracy_on_kept_pct"] is not None else "n/a"
+            out.append(f"| {c.replace('_', ' ')} | {x['n']} | {x['accuracy_pct']} % | "
+                       f"{x['kept_at_default_threshold']} | {x['correct_kept']} | {ak} |")
         out.append("")
     with open(os.path.join(ROOT, "eval", "RESULTS.md"), "w", encoding="utf-8", newline="\n") as f:
         f.write("\n".join(out))

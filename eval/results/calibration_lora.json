@@ -327,6 +327,162 @@
       ]
     }
   },
+  "on_exam_test_detail_fitted_T": {
+    "default_threshold": 0.8,
+    "per_category": {
+      "causalite_fallacie": {
+        "n": 75,
+        "correct": 61,
+        "accuracy_pct": 81.3,
+        "kept_at_default_threshold": 39,
+        "correct_kept": 39,
+        "accuracy_on_kept_pct": 100.0
+      },
+      "course_position": {
+        "n": 150,
+        "correct": 68,
+        "accuracy_pct": 45.3,
+        "kept_at_default_threshold": 4,
+        "correct_kept": 4,
+        "accuracy_on_kept_pct": 100.0
+      },
+      "enigme_linguistique": {
+        "n": 100,
+        "correct": 65,
+        "accuracy_pct": 65.0,
+        "kept_at_default_threshold": 26,
+        "correct_kept": 24,
+        "accuracy_on_kept_pct": 92.3
+      },
+      "maths_contre_intuitives": {
+        "n": 125,
+        "correct": 79,
+        "accuracy_pct": 63.2,
+        "kept_at_default_threshold": 49,
+        "correct_kept": 46,
+        "accuracy_on_kept_pct": 93.9
+      },
+      "negations_multiples": {
+        "n": 100,
+        "correct": 85,
+        "accuracy_pct": 85.0,
+        "kept_at_default_threshold": 72,
+        "correct_kept": 65,
+        "accuracy_on_kept_pct": 90.3
+      },
+      "physiologie_contre_intuitive": {
+        "n": 100,
+        "correct": 75,
+        "accuracy_pct": 75.0,
+        "kept_at_default_threshold": 45,
+        "correct_kept": 41,
+        "accuracy_on_kept_pct": 91.1
+      },
+      "raisonnement_spatial": {
+        "n": 100,
+        "correct": 47,
+        "accuracy_pct": 47.0,
+        "kept_at_default_threshold": 11,
+        "correct_kept": 10,
+        "accuracy_on_kept_pct": 90.9
+      },
+      "raisonnement_temporel": {
+        "n": 75,
+        "correct": 34,
+        "accuracy_pct": 45.3,
+        "kept_at_default_threshold": 15,
+        "correct_kept": 11,
+        "accuracy_on_kept_pct": 73.3
+      },
+      "routage": {
+        "n": 75,
+        "correct": 66,
+        "accuracy_pct": 88.0,
+        "kept_at_default_threshold": 44,
+        "correct_kept": 43,
+        "accuracy_on_kept_pct": 97.7
+      },
+      "securite_info": {
+        "n": 100,
+        "correct": 94,
+        "accuracy_pct": 94.0,
+        "kept_at_default_threshold": 61,
+        "correct_kept": 61,
+        "accuracy_on_kept_pct": 100.0
+      },
+      "sens_commun": {
+        "n": 100,
+        "correct": 66,
+        "accuracy_pct": 66.0,
+        "kept_at_default_threshold": 34,
+        "correct_kept": 34,
+        "accuracy_on_kept_pct": 100.0
+      },
+      "sentiment": {
+        "n": 75,
+        "correct": 65,
+        "accuracy_pct": 86.7,
+        "kept_at_default_threshold": 43,
+        "correct_kept": 43,
+        "accuracy_on_kept_pct": 100.0
+      },
+      "triage": {
+        "n": 75,
+        "correct": 45,
+        "accuracy_pct": 60.0,
+        "kept_at_default_threshold": 22,
+        "correct_kept": 19,
+        "accuracy_on_kept_pct": 86.4
+      }
+    },
+    "high_confidence": [
+      {
+        "min_confidence": 0.9,
+        "decisions": 296,
+        "correct": 289,
+        "accuracy_ci95_pct": [
+          95.2,
+          98.8
+        ]
+      },
+      {
+        "min_confidence": 0.95,
+        "decisions": 152,
+        "correct": 150,
+        "accuracy_ci95_pct": [
+          95.3,
+          99.6
+        ]
+      },
+      {
+        "min_confidence": 0.97,
+        "decisions": 79,
+        "correct": 79,
+        "accuracy_ci95_pct": [
+          95.4,
+          100.0
+        ]
+      },
+      {
+        "min_confidence": 0.98,
+        "decisions": 38,
+        "correct": 38,
+        "accuracy_ci95_pct": [
+          90.8,
+          100.0
+        ]
+      },
+      {
+        "min_confidence": 0.99,
+        "decisions": 4,
+        "correct": 4,
+        "accuracy_ci95_pct": [
+          51.0,
+          100.0
+        ]
+      }
+    ]
+  },
   "on_exam_test_by_group_fitted_T": {
     "business_categories": {
       "temperature": 2.6353,
