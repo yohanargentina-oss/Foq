@@ -24,71 +24,96 @@ print(res.needs_review)   # keys whose confidence is below 0.8, to hand to a hum
 
 ## What we measured
 
-All numbers below come from [`eval/RESULTS.md`](eval/RESULTS.md), produced by the
-replayable pipeline in [`eval/`](eval/README.md): 2,500 generated multiple-choice
-cases split in two halves. `calib_val` (1,250 cases) is used only to fit the
-confidence temperature; `exam_test` (1,250 cases) is never used to fit anything.
+All accuracy figures come from [`eval/RESULTS.md`](eval/RESULTS.md), latency from
+[`eval/LATENCY.md`](eval/LATENCY.md); both are produced by replayable scripts in
+[`eval/`](eval/README.md). The exam: 2,500 generated multiple-choice cases split in
+two halves. `calib_val` (1,250 cases) is used only to fit the confidence temperature;
+`exam_test` (1,250 cases) is never used to fit anything. Unless stated otherwise,
+figures are for the default setup (Foq 8B + decision adapter v1, fitted temperature)
+on `exam_test`.
 
-| On `exam_test` (1,250 held-out cases) | Foq 8B alone | Foq 8B + decision adapter v1 (default) |
+**When Foq is sure, it is right.**
+
+| On `exam_test` | Decisions | Correct |
+|---|---|---|
+| Confidence ≥ 0.97 | 79 | 79 (100.0 % [95.4–100.0]) |
+| Confidence ≥ 0.98 | 38 | 38 (100.0 % [90.8–100.0]) |
+| Confidence ≥ 0.95 | 152 | 150 (98.7 % [95.3–99.6]) |
+
+Kept at the default threshold (confidence ≥ 0.8), by category:
+
+| Category | Cases | Kept | Correct among kept | Overall accuracy |
+|---|---|---|---|---|
+| Information security | 100 | 61 | 61 | 94.0 % |
+| Sentiment | 75 | 43 | 43 | 86.7 % |
+| Fallacious causality | 75 | 39 | 39 | 81.3 % |
+| Ticket routing | 75 | 44 | 43 | 88.0 % |
+
+**The whole picture.**
+
+| On `exam_test` (1,250 cases) | Foq 8B alone | Foq 8B + adapter v1 (default) |
 |---|---|---|
 | Accuracy [95 % CI] | 64.8 % [62.1–67.4] | 68.0 % [65.4–70.5] |
 | — business tasks (routing, security, sentiment, triage; 325 cases) | 78.2 % | 83.1 % |
 | — reasoning puzzles (925 cases) | 60.1 % | 62.7 % |
 | Expected calibration error, fitted temperature | 5.5 % (T = 3.6381) | 4.77 % (T = 2.6353) |
-| `needs_review` at 0.8 (default): sent to review | 70.2 % | 62.8 % |
+| `needs_review` at 0.8: sent to review | 70.2 % | 62.8 % |
 | `needs_review` at 0.8: accuracy on the decisions kept | 91.1 % | 94.6 % |
+| Decision latency, server median (RTX 4080 SUPER) | 18.35 ms | 24.82 ms |
+| Decision latency, HTTP round trip median (Python client, same machine) | 31.8 ms | 35.66 ms |
 
 How to read it:
 
-- **Foq is not right every time.** On these cases, the default setup is right about
-  two times out of three overall, and about five times out of six on the business
-  tasks it is built for. The puzzle categories are deliberately harder than
-  typical production inputs.
-- **Its confidence is usable.** With a temperature fitted on separate data, the
-  stated confidence is within about 5 points of the observed accuracy.
-- **`needs_review` is the point.** With the default threshold (0.8), Foq keeps
-  465 of the 1,250 decisions and is right on 94.6 % of those; the rest is flagged for
-  a human or a second-tier model. You choose the trade-off: the full table of
-  thresholds is in [`eval/RESULTS.md`](eval/RESULTS.md).
-- The cases are generated, not drawn from real traffic. Limits are listed in
-  [`eval/README.md`](eval/README.md).
-
-Not yet measured, and therefore not claimed: **[latency on reference hardware]**,
-**[comparison with small cloud models: accuracy, latency and price per decision]**,
-**[comparison with Laya on the held-out exam]**. `foq benchmark` measures latency on
-your own machine.
+- **Foq decides alone on about a third of the cases and defers the rest.** At the
+  default threshold (0.8) it keeps 465 of the 1,250 decisions and is right on
+  94.6 % of them; the other 62.8 % are flagged `needs_review` for a human or a
+  second-tier model. The threshold is yours to choose: the full table is in
+  [`eval/RESULTS.md`](eval/RESULTS.md).
+- **Overall, Foq is right on 68.0 % of the cases** (64.8 % without the adapter), and
+  on 83.1 % of the business tasks it is built for.
+- **Weak spots.** Emergency triage: 60.0 % overall, 86.4 % on the decisions kept at
+  0.8. Some puzzle categories (race positions, spatial and temporal reasoning) stay
+  below 50 %.
+- **Limits.** The 2,500 cases are generated, not drawn from real traffic, and three
+  quarters of them (925 of 1,250 in the exam) are reasoning puzzles, harder than
+  typical production inputs. Latency was measured on one machine; run
+  `foq benchmark` on yours.
 
 Earlier versions of this README quoted an accuracy and a calibration error
 measured on cases too close to the training data and on a tiny calibration set.
 Those figures are withdrawn; see [BENCHMARKS.md](BENCHMARKS.md#7-withdrawn-figures).
 
-## Foq, Jev and Laya
+## Why local
 
-[Jev](https://typesafe.ai) by TypeSafe AI made "System One Models" known in
-September 2026; it is a cloud API with early access. Foq offers the same kind of
-typed decisions as open code and open weights that run locally.
+Compared with a cloud API, including Jev by TypeSafe AI, these points are facts
+rather than measurements:
+
+- **It runs on your machine and offline**: no account, no network needed.
+- **Nothing leaves your machine**: inputs are never sent to a third party.
+- **No per-call cost**: you pay for your hardware, not for each decision.
+- **Open code and open weights** (MIT code, Apache 2.0 weights): you can inspect,
+  adapt (local LoRA) and audit them.
+
+We make no accuracy or speed claim about Jev or other cloud models: we have not
+measured them.
 
 |  | **Jev** (TypeSafe AI) | **Laya** (Convai) | **Foq** |
 |---|---|---|---|
 | Hosting | Cloud API (`api.typesafe.ai`) | Local (`pip install laya`) | Local |
-| Access | Early access | Available | Available — `pip install foq` |
 | Model | Closed | BERT encoders (ModernBERT-large 421M / mmBERT 322M) | Ternary 8B (Qwen3 architecture) |
 | Max context | — | 512 / 1,024 tokens | 4,096 tokens |
 | Pydantic schema extraction | Yes | No (classification only) | Yes (`extract()`) |
 | Abstains when unsure | Not documented | No | Yes (`needs_review`) |
-| Cost | Usage-based | Free | Free, runs on your hardware |
 | Code & weights | Closed | Open (Apache 2.0) | Open (MIT code / Apache 2.0 weights) |
 | Offline, air-gapped | No | Yes | Yes |
-| Accuracy on our held-out exam | [not measured] | [not measured] | 68.0 % (see above) |
 
-**Laya** is much smaller (a few hundred million parameters) and a reasonable choice
-for fixed-label classification with short inputs. In the hand-picked examples of
-[`examples/benchmark_foq_vs_laya.py`](examples/benchmark_foq_vs_laya.py), Foq handled
-cases where Laya slipped: an *"EMERGENCY: the main database cluster is down"* ticket
-that Laya marked non-urgent, a German cancellation request routed to its English
-model, and a negation (*"I am NOT having any billing problem, the website JS is
-broken"*). These are illustrations, not a benchmark: a handful of cases cannot rank
-two systems.
+**Laya** is much smaller and a reasonable choice for fixed-label classification on
+short inputs. On 9 cases that we chose,
+[`examples/benchmark_foq_vs_laya.py`](examples/benchmark_foq_vs_laya.py) shows Foq
+handling a German cancellation request that Laya routed to its English model, and a
+negation (*"I am NOT having any billing problem, the website JS is broken"*) and a
+prompt injection on which Laya's confidence dropped. These 9 cases are illustrations
+we picked, not a benchmark.
 
 > Foq is an independent project, not affiliated with, sponsored or endorsed by
 > TypeSafe AI or Convai. "Jev" and "Laya" are trademarks of their respective
@@ -148,7 +173,7 @@ task = FoqEngine().extract(state="K8s migration, priority 5", schema=Task)
   a decision.
 
 Methodology, history of the published numbers and replay commands:
-**[BENCHMARKS.md](BENCHMARKS.md)**.
+**[BENCHMARKS.md](BENCHMARKS.md)**. Documentation: **[docs/](docs/README.md)**.
 
 ## Provenance & license
 
