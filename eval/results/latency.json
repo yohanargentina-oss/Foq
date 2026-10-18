@@ -1,0 +1,331 @@
+{
+  "measured_at": "2026-10-18 12:36:21",
+  "set": "exam_test",
+  "cases": 1250,
+  "machine": {
+    "os": "Windows-11-10.0.26200-SP0",
+    "cpu": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel"
+  },
+  "method": "one llama-server at a time (restarted for each pass), 3 passes per configuration alternated bare/lora, sequential requests (concurrency 1), localhost; server_ms = timings.prompt_ms + timings.predicted_ms; pooled = all passes together",
+  "configs": {
+    "bare": {
+      "passes": [
+        {
+          "server_command": "llama-server.exe -m foq-reflex-8b-pq2_0.gguf -ngl 99 -c 4096 -np 1 --port 8091",
+          "lora_adapters_loaded": [],
+          "accuracy_check_pct": 64.9,
+          "gpu_before_start": {
+            "name": "NVIDIA GeForce RTX 4080 SUPER",
+            "driver": "591.59",
+            "memory_used": "3915 MiB",
+            "memory_total": "16376 MiB",
+            "utilization": "2 %"
+          },
+          "gpu_during_run": {
+            "name": "NVIDIA GeForce RTX 4080 SUPER",
+            "driver": "591.59",
+            "memory_used": "6816 MiB",
+            "memory_total": "16376 MiB",
+            "utilization": "69 %"
+          },
+          "warmup_requests_not_counted": 10,
+          "server_ms": {
+            "n": 1250,
+            "median": 18.22,
+            "p95": 20.68,
+            "mean": 18.4,
+            "min": 6.65,
+            "max": 27.77
+          },
+          "http_round_trip_ms": {
+            "n": 1250,
+            "median": 32.0,
+            "p95": 41.59,
+            "mean": 30.52,
+            "min": 17.31,
+            "max": 80.12
+          },
+          "prompt_tokens_evaluated": {
+            "n": 1250,
+            "median": 88.0,
+            "p95": 109.0,
+            "mean": 88.67,
+            "min": 1,
+            "max": 136
+          }
+        },
+        {
+          "server_command": "llama-server.exe -m foq-reflex-8b-pq2_0.gguf -ngl 99 -c 4096 -np 1 --port 8091",
+          "lora_adapters_loaded": [],
+          "accuracy_check_pct": 64.9,
+          "gpu_before_start": {
+            "name": "NVIDIA GeForce RTX 4080 SUPER",
+            "driver": "591.59",
+            "memory_used": "3925 MiB",
+            "memory_total": "16376 MiB",
+            "utilization": "3 %"
+          },
+          "gpu_during_run": {
+            "name": "NVIDIA GeForce RTX 4080 SUPER",
+            "driver": "591.59",
+            "memory_used": "6811 MiB",
+            "memory_total": "16376 MiB",
+            "utilization": "42 %"
+          },
+          "warmup_requests_not_counted": 10,
+          "server_ms": {
+            "n": 1250,
+            "median": 18.44,
+            "p95": 21.15,
+            "mean": 18.65,
+            "min": 7.92,
+            "max": 48.27
+          },
+          "http_round_trip_ms": {
+            "n": 1250,
+            "median": 31.68,
+            "p95": 42.03,
+            "mean": 30.9,
+            "min": 18.59,
+            "max": 64.45
+          },
+          "prompt_tokens_evaluated": {
+            "n": 1250,
+            "median": 88.0,
+            "p95": 109.0,
+            "mean": 88.67,
+            "min": 1,
+            "max": 136
+          }
+        },
+        {
+          "server_command": "llama-server.exe -m foq-reflex-8b-pq2_0.gguf -ngl 99 -c 4096 -np 1 --port 8091",
+          "lora_adapters_loaded": [],
+          "accuracy_check_pct": 64.9,
+          "gpu_before_start": {
+            "name": "NVIDIA GeForce RTX 4080 SUPER",
+            "driver": "591.59",
+            "memory_used": "3928 MiB",
+            "memory_total": "16376 MiB",
+            "utilization": "40 %"
+          },
+          "gpu_during_run": {
+            "name": "NVIDIA GeForce RTX 4080 SUPER",
+            "driver": "591.59",
+            "memory_used": "6885 MiB",
+            "memory_total": "16376 MiB",
+            "utilization": "78 %"
+          },
+          "warmup_requests_not_counted": 10,
+          "server_ms": {
+            "n": 1250,
+            "median": 18.38,
+            "p95": 22.13,
+            "mean": 18.76,
+            "min": 7.81,
+            "max": 28.05
+          },
+          "http_round_trip_ms": {
+            "n": 1250,
+            "median": 31.66,
+            "p95": 42.49,
+            "mean": 30.27,
+            "min": 17.61,
+            "max": 56.88
+          },
+          "prompt_tokens_evaluated": {
+            "n": 1250,
+            "median": 88.0,
+            "p95": 109.0,
+            "mean": 88.67,
+            "min": 1,
+            "max": 136
+          }
+        }
+      ],
+      "pooled_server_ms": {
+        "n": 3750,
+        "median": 18.35,
+        "p95": 21.49,
+        "mean": 18.6,
+        "min": 6.65,
+        "max": 48.27
+      },
+      "pooled_http_round_trip_ms": {
+        "n": 3750,
+        "median": 31.8,
+        "p95": 42.04,
+        "mean": 30.57,
+        "min": 17.31,
+        "max": 80.12
+      }
+    },
+    "lora": {
+      "passes": [
+        {
+          "server_command": "llama-server.exe -m foq-reflex-8b-pq2_0.gguf --lora foq_decision_8b.gguf -ngl 99 -c 4096 -np 1 --port 8091",
+          "lora_adapters_loaded": [
+            {
+              "path": "foq_decision_8b.gguf",
+              "scale": 1.0
+            }
+          ],
+          "accuracy_check_pct": 68.0,
+          "gpu_before_start": {
+            "name": "NVIDIA GeForce RTX 4080 SUPER",
+            "driver": "591.59",
+            "memory_used": "3928 MiB",
+            "memory_total": "16376 MiB",
+            "utilization": "2 %"
+          },
+          "gpu_during_run": {
+            "name": "NVIDIA GeForce RTX 4080 SUPER",
+            "driver": "591.59",
+            "memory_used": "6894 MiB",
+            "memory_total": "16376 MiB",
+            "utilization": "2 %"
+          },
+          "warmup_requests_not_counted": 10,
+          "server_ms": {
+            "n": 1250,
+            "median": 25.15,
+            "p95": 27.12,
+            "mean": 25.36,
+            "min": 9.38,
+            "max": 55.87
+          },
+          "http_round_trip_ms": {
+            "n": 1250,
+            "median": 38.43,
+            "p95": 48.24,
+            "mean": 37.37,
+            "min": 20.72,
+            "max": 75.01
+          },
+          "prompt_tokens_evaluated": {
+            "n": 1250,
+            "median": 88.0,
+            "p95": 109.0,
+            "mean": 88.67,
+            "min": 1,
+            "max": 136
+          }
+        },
+        {
+          "server_command": "llama-server.exe -m foq-reflex-8b-pq2_0.gguf --lora foq_decision_8b.gguf -ngl 99 -c 4096 -np 1 --port 8091",
+          "lora_adapters_loaded": [
+            {
+              "path": "foq_decision_8b.gguf",
+              "scale": 1.0
+            }
+          ],
+          "accuracy_check_pct": 68.0,
+          "gpu_before_start": {
+            "name": "NVIDIA GeForce RTX 4080 SUPER",
+            "driver": "591.59",
+            "memory_used": "3924 MiB",
+            "memory_total": "16376 MiB",
+            "utilization": "2 %"
+          },
+          "gpu_during_run": {
+            "name": "NVIDIA GeForce RTX 4080 SUPER",
+            "driver": "591.59",
+            "memory_used": "6909 MiB",
+            "memory_total": "16376 MiB",
+            "utilization": "59 %"
+          },
+          "warmup_requests_not_counted": 10,
+          "server_ms": {
+            "n": 1250,
+            "median": 25.37,
+            "p95": 28.25,
+            "mean": 25.69,
+            "min": 14.33,
+            "max": 71.48
+          },
+          "http_round_trip_ms": {
+            "n": 1250,
+            "median": 38.72,
+            "p95": 48.84,
+            "mean": 37.82,
+            "min": 20.93,
+            "max": 77.82
+          },
+          "prompt_tokens_evaluated": {
+            "n": 1250,
+            "median": 88.0,
+            "p95": 109.0,
+            "mean": 88.67,
+            "min": 1,
+            "max": 136
+          }
+        },
+        {
+          "server_command": "llama-server.exe -m foq-reflex-8b-pq2_0.gguf --lora foq_decision_8b.gguf -ngl 99 -c 4096 -np 1 --port 8091",
+          "lora_adapters_loaded": [
+            {
+              "path": "foq_decision_8b.gguf",
+              "scale": 1.0
+            }
+          ],
+          "accuracy_check_pct": 68.0,
+          "gpu_before_start": {
+            "name": "NVIDIA GeForce RTX 4080 SUPER",
+            "driver": "591.59",
+            "memory_used": "3998 MiB",
+            "memory_total": "16376 MiB",
+            "utilization": "2 %"
+          },
+          "gpu_during_run": {
+            "name": "NVIDIA GeForce RTX 4080 SUPER",
+            "driver": "591.59",
+            "memory_used": "6955 MiB",
+            "memory_total": "16376 MiB",
+            "utilization": "68 %"
+          },
+          "warmup_requests_not_counted": 10,
+          "server_ms": {
+            "n": 1250,
+            "median": 21.85,
+            "p95": 24.66,
+            "mean": 22.0,
+            "min": 10.16,
+            "max": 37.5
+          },
+          "http_round_trip_ms": {
+            "n": 1250,
+            "median": 32.33,
+            "p95": 39.49,
+            "mean": 30.92,
+            "min": 18.88,
+            "max": 52.74
+          },
+          "prompt_tokens_evaluated": {
+            "n": 1250,
+            "median": 88.0,
+            "p95": 109.0,
+            "mean": 88.67,
+            "min": 1,
+            "max": 136
+          }
+        }
+      ],
+      "pooled_server_ms": {
+        "n": 3750,
+        "median": 24.82,
+        "p95": 27.14,
+        "mean": 24.35,
+        "min": 9.38,
+        "max": 71.48
+      },
+      "pooled_http_round_trip_ms": {
+        "n": 3750,
+        "median": 35.66,
+        "p95": 47.5,
+        "mean": 35.37,
+        "min": 18.88,
+        "max": 77.82
+      }
+    }
+  }
+}
