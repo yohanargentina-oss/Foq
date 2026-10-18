@@ -1,7 +1,9 @@
 {
-  "model_alias": "foq",
-  "temperature": 0.1000046791375977,
-  "ece": 2.9156981162792306e-08,
-  "brier_score": 4.282441391293418e-15,
-  "timestamp": "2026-09-18T19:19:30.054463"
+  "model_alias": "foq-8b-lora",
+  "temperature": 2.6353,
+  "ece": 0.0477,
+  "brier_score": 0.3927,
+  "fitted_on": "eval/data/calib_val.jsonl (1250 cases)",
+  "measured_on": "eval/data/exam_test.jsonl (1250 cases, held out)",
+  "source": "eval/results/calibration_lora.json"
 }

@@ -89,8 +89,20 @@ class TestFoqPrimitives(unittest.TestCase):
         profile = CalibrationProfile()
         loaded = profile.load()
         self.assertTrue(loaded)
-        self.assertEqual(profile.model_alias, "foq")
+        self.assertTrue(profile.model_alias.startswith("foq"))
         self.assertGreater(profile.temperature, 0.0)
+
+    def test_shipped_profiles_are_not_degenerate(self):
+        # Both shipped profiles come from eval/calibrate.py (fitted on calib_val, held-out ECE).
+        # A temperature at the old lower bound (0.1) means the fit saw no errors.
+        import json
+        import os
+        base = os.path.join(os.path.dirname(__file__), "..", "foq")
+        for name in ("calibration_profile.json", "calibration_profile_bare.json"):
+            with open(os.path.join(base, name), encoding="utf-8") as f:
+                data = json.load(f)
+            self.assertGreater(data["temperature"], 0.5, name)
+            self.assertIn("exam_test", data["measured_on"], name)
 
 
 if __name__ == "__main__":

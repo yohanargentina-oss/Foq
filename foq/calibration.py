@@ -1,7 +1,8 @@
 """
-RLCD Calibration Module for Foq.
-Ensures strict alignment between predicted probabilities and empirical frequency:
-when Foq reports 80% confidence, the outcome occurs in 80% of cases.
+Calibration module for Foq: temperature scaling (Guo et al., 2017).
+Aims at alignment between stated confidence and empirical accuracy. The fit only
+means something on a validation set that contains errors; measure ECE on a separate
+held-out set (see eval/README.md and eval/RESULTS.md).
 """
 
 import json
@@ -140,8 +141,14 @@ class TemperatureScaler:
                 total_loss += -math.log(prob_target)
             return total_loss / max(1, len(dataset))
 
-        res = minimize_scalar(nll_loss, bounds=(0.1, 5.0), method="bounded")
+        bounds = (0.05, 20.0)
+        res = minimize_scalar(nll_loss, bounds=bounds, method="bounded")
         self.temperature = float(res.x)
+        if min(abs(self.temperature - b) for b in bounds) < 1e-2:
+            import warnings
+            warnings.warn(
+                f"Temperature fit ended on the search bound ({self.temperature:.3f}): the "
+                "validation set probably contains no errors; the result is not a calibration.")
         return self.temperature
 
 

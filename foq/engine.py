@@ -1,7 +1,7 @@
 """
 Moteur principal Foq.
 Interroge le serveur local en mode zéro-génération (1 seul token de sortie avec logprobs)
-et applique la couche de calibration RLCD pour renvoyer des probabilités rigoureuses.
+et applique la calibration par température (temperature scaling) pour renvoyer des probabilités rigoureuses.
 """
 
 import math
@@ -15,14 +15,20 @@ from concurrent.futures import ThreadPoolExecutor
 from .calibration import TemperatureScaler, CalibrationProfile
 from .schemas import DecisionSchema, Structure
 
-# Seuil d'abstention mesuré sur 500 cas aveugles (BENCHMARKS.md) :
-# conf >= 0.95 → 8B autonome fiable ; en dessous → needs_review (+5,6 pts mesurés).
-SEUIL_REVIEW_MESURE = 0.95
+# Seuil d'abstention mesuré sur l'examen tenu à l'écart (eval/RESULTS.md, 1 250 cas,
+# modèle + adaptateur, température réglée sur un autre jeu) : à 0,8, 62,8 % des décisions
+# partent en revue et 94,6 % des décisions gardées sont justes. À 0,95, 87,8 % partent en revue.
+SEUIL_REVIEW_MESURE = 0.8
 
 # Profil de calibration par défaut : embarqué dans le paquet, indépendant du
 # répertoire de travail et de l'installation (pip ou dépôt).
+# Deux profils, réglés sur eval/data/calib_val.jsonl : modèle + adaptateur (défaut des
+# lanceurs) et modèle seul. Le moteur prend celui qui correspond au serveur.
 _DEFAULT_PROFILE_PATH = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "calibration_profile.json"
+)
+_BARE_PROFILE_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "calibration_profile_bare.json"
 )
 
 
@@ -63,10 +69,33 @@ class FoqEngine:
         self.client = httpx.Client(base_url=self.base_url, timeout=timeout_seconds)
         self.min_confidence = min_confidence
 
-        # Charger profil de calibration si existant
-        self.profile = CalibrationProfile(profile_path or _DEFAULT_PROFILE_PATH)
+        # Adaptateurs LoRA chargés par le serveur (None = inconnu, serveur injoignable)
+        self._adapters: Optional[List[Dict[str, Any]]] = self._fetch_adapters()
+
+        # Profil de calibration : celui demandé, sinon celui qui correspond au serveur
+        if profile_path is None:
+            profile_path = _BARE_PROFILE_PATH if self._adapters == [] else _DEFAULT_PROFILE_PATH
+        self.profile = CalibrationProfile(profile_path)
         self.profile.load()
         self.scaler = TemperatureScaler(temperature=self.profile.temperature)
+
+    def _fetch_adapters(self) -> Optional[List[Dict[str, Any]]]:
+        try:
+            res = self.client.get("/lora-adapters", timeout=1.0)
+            if res.status_code == 200 and isinstance(res.json(), list):
+                return res.json()
+        except Exception:
+            pass
+        return None
+
+    def _adapters_off(self) -> Optional[List[Dict[str, Any]]]:
+        """Échelle 0 pour chaque adaptateur : l'adaptateur de décision, entraîné sur la
+        seule lettre de réponse, dégrade la génération libre (extract)."""
+        if self._adapters is None:
+            self._adapters = self._fetch_adapters()
+        if not self._adapters:
+            return None
+        return [{"id": a["id"], "scale": 0.0} for a in self._adapters]
 
     def __enter__(self):
         return self
@@ -315,6 +344,9 @@ class FoqEngine:
             "n_predict": max_tokens,
             "cache_prompt": True,
         }
+        adapters_off = self._adapters_off()
+        if adapters_off:
+            payload["lora"] = adapters_off
 
         try:
             response = self.client.post("/completion", json=payload)
@@ -349,6 +381,9 @@ class FoqEngine:
             "n_predict": max_tokens,
             "cache_prompt": True,
         }
+        adapters_off = self._adapters_off()
+        if adapters_off:
+            payload["lora"] = adapters_off
 
         async with httpx.AsyncClient(base_url=self.base_url, timeout=self.timeout_seconds) as client:
             try:
