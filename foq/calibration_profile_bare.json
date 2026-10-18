@@ -1,0 +1,9 @@
+{
+  "model_alias": "foq-8b",
+  "temperature": 3.6381,
+  "ece": 0.055,
+  "brier_score": 0.4518,
+  "fitted_on": "eval/data/calib_val.jsonl (1250 cases)",
+  "measured_on": "eval/data/exam_test.jsonl (1250 cases, held out)",
+  "source": "eval/results/calibration_bare.json"
+}

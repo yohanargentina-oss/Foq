@@ -81,6 +81,7 @@ def cmd_setup(args):
     MODEL_SHA = "59a08216ee6065f7a8bfe2442d528065283f6f137af6f7fa4e0f0224f5d4909e"
     MODEL_SIZE = 2182184640
     ADAPTER_URL = "https://huggingface.co/Yoedi/foq-reflex-8b-gguf/resolve/main/foq_decision_8b.gguf"
+    ADAPTER_SHA = "9cf83867d2605a148cb82146b51f2d9ac6eae12db960c9d7e843b0ccdba783c6"
 
     home = os.path.expanduser("~")
     dest_dir = os.path.join(home, ".models", "foq")
@@ -188,11 +189,10 @@ def cmd_setup(args):
         print("      then unpack it to ~/.local/bin/foq-llama/.")
         print("      Foq launchers will locate it automatically (or via LLAMA_SERVER env var).")
 
-    # 3. Decision adapter (optional)
-    print("[3/3] LoRA decision adapter (optional, +10.7 pts measured)...")
-    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-    adapter_local = os.path.join(base_dir, "adapters", "foq_decision_8b", "foq_decision_8b.gguf")
-    if os.path.exists(adapter_local):
+    # 3. Decision adapter (loaded by default by the launchers when present)
+    print("[3/3] LoRA decision adapter (+3.2 pts on the held-out exam, see eval/RESULTS.md)...")
+    adapter_local = os.path.join(dest_dir, "foq_decision_8b.gguf")
+    if os.path.exists(adapter_local) and sha256_file(adapter_local) == ADAPTER_SHA:
         print("      OK — already present:", adapter_local)
     else:
         try:
@@ -206,6 +206,9 @@ def cmd_setup(args):
                         with open(adapter_local + ".part", "wb") as f:
                             for chunk in resp.iter_bytes(1 << 20):
                                 f.write(chunk)
+                if sha256_file(adapter_local + ".part") != ADAPTER_SHA:
+                    os.remove(adapter_local + ".part")
+                    raise ValueError("adapter SHA-256 mismatch")
                 os.replace(adapter_local + ".part", adapter_local)
                 print("      OK —", adapter_local)
             else:
@@ -213,7 +216,7 @@ def cmd_setup(args):
                 print("      adapter will be downloadable from repository Releases page.")
         except Exception:
             print("      Download unavailable — Foq operates without adapter;")
-            print("      launcher loads it automatically if present.")
+            print("      in that case use foq/calibration_profile_bare.json for calibrated confidences.")
 
     print("\n[✓] Setup complete. Next step: start_foq_server.cmd (or .sh), then: foq demo")
 

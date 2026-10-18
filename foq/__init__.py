@@ -1,6 +1,6 @@
 """
 Foq - Moteur de décision rapide Système 1 (27B)
-Avec calibration RLCD et extraction de probabilités en une passe.
+Avec calibration par température et extraction de probabilités en une passe.
 """
 
 from .engine import FoqEngine, FoqConnectionError, SystemOneResponse

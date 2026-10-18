@@ -38,7 +38,18 @@ if [ -z "$LLAMA_SERVER" ]; then
     exit 1
 fi
 
+# Decision adapter (LoRA): loaded by default when present, NO_LORA=1 disables it.
+# The default calibration profile (foq/calibration_profile.json) is fitted for model + adapter.
+if [ -z "$LORA_PATH" ]; then
+    for _cand in "${HOME}/.models/foq/foq_decision_8b.gguf" "./adapters/foq_decision_8b/foq_decision_8b.gguf"; do
+        if [ -f "$_cand" ]; then LORA_PATH="$_cand"; break; fi
+    done
+fi
+[ "${NO_LORA:-0}" = "1" ] && LORA_PATH=""
 LORA_ARGS=()
+if [ -z "$LORA_PATH" ]; then
+    echo "[!] No decision adapter: use foq/calibration_profile_bare.json for calibrated confidences."
+fi
 if [ -n "$LORA_PATH" ] && [ -f "$LORA_PATH" ]; then
     echo "[*] Active LoRA adapter: $LORA_PATH"
     LORA_ARGS=(--lora "$LORA_PATH")

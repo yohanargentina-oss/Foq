@@ -74,11 +74,25 @@ class TestEngineLifecycle(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             os.chdir(tmp)
             try:
-                engine = FoqEngine()
+                engine = FoqEngine(base_url="http://127.0.0.1:9")  # no server: default profile
                 self.assertAlmostEqual(engine.profile.temperature, expected["temperature"], places=6)
             finally:
                 os.chdir(old_cwd)
                 engine.close()
+
+    def test_profile_follows_loaded_adapter(self):
+        """Server without adapter -> bare profile; with adapter -> default profile, and
+        extract() switches the adapter off."""
+        bare = json.loads((REPO_ROOT / "foq" / "calibration_profile_bare.json").read_text(encoding="utf-8"))
+        lora = json.loads((REPO_ROOT / "foq" / "calibration_profile.json").read_text(encoding="utf-8"))
+        with mock.patch.object(FoqEngine, "_fetch_adapters", return_value=[]):
+            with FoqEngine() as engine:
+                self.assertAlmostEqual(engine.profile.temperature, bare["temperature"], places=6)
+                self.assertIsNone(engine._adapters_off())
+        with mock.patch.object(FoqEngine, "_fetch_adapters", return_value=[{"id": 0, "scale": 1.0}]):
+            with FoqEngine() as engine:
+                self.assertAlmostEqual(engine.profile.temperature, lora["temperature"], places=6)
+                self.assertEqual(engine._adapters_off(), [{"id": 0, "scale": 0.0}])
 
     def test_context_manager_closes_client(self):
         with FoqEngine() as engine:

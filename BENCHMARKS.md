@@ -1,181 +1,187 @@
-# 📊 Benchmark Proof Room
+# Benchmarks
 
-Every metric on this page is backed by **reproducible empirical measurements** executed on local hardware. No estimated figure is presented as measured; third-party API figures are explicitly cited as industry baseline references.
-
-**Test Environment**: NVIDIA RTX 3060 / 4080 Super · Local `llama-server` (Foq PQ2_0 C++ runtime) · Client-side P50 latency · Test suites = operational production workloads (security, ticket routing, sentiment analysis, emergency triage, prompt injection defense) plus semantic edge cases.
-
----
-
-## 1. Decision Latency
-
-```mermaid
-xychart-beta
-    title "P50 Latency per Decision (ms) — Linear Scale"
-    x-axis ["Foq 8B", "Typical API LLM", "Reasoning LLM"]
-    y-axis "Milliseconds" 0 --> 13000
-    bar [25, 2000, 12300]
-```
-
-<p align="center">
-  <img src="assets/chart_latence.png" alt="P50 Latency: Foq 8B 25 ms vs Typical API 2000 ms vs Reasoning LLM 12300 ms" width="820">
-</p>
-
-**Takeaway**: At this scale, Foq's latency bar is barely visible. Foq 8B is **≈80× faster** than a standard cloud LLM API call and **≈500× faster** than a deliberative reasoning model.
-
-*Replay*: `foq benchmark`. Cloud API figures (1–3 s) represent observed industry round-trip latency; the reasoning model figure (12.3 s) is measured directly on our local testbed with DeepSeek R1 8B.
+Every accuracy and calibration number on this page is copied from
+[`eval/RESULTS.md`](eval/RESULTS.md), and every latency number from
+[`eval/LATENCY.md`](eval/LATENCY.md). RESULTS.md is
+`python eval/report.py` generates from `eval/results/calibration_*.json`. The
+pipeline that produces them is in [`eval/README.md`](eval/README.md) and can be
+rerun on your own machine. What has not been measured is marked **[not yet
+measured]** rather than estimated.
 
 ---
 
-## 2. Accuracy — Production Exam (150 Cases)
+## 1. The exam
 
-Real operational production suite: application security, phishing detection, support ticket routing, sentiment scoring, emergency triage, compliance rules, and adversarial prompt injections — including **105 blind instances never seen during training**.
+- **Source**: 2,500 generated multiple-choice cases (3 options, 13 categories).
+  None of them is in the training set of the decision adapter v1 (checked by
+  exact match and by near-duplicates; `eval/build_split.py` prints the report).
+- **Split**, stratified by category:
+  - `calib_val` — 1,250 cases, used only to fit the confidence temperature;
+  - `exam_test` — 1,250 cases, never used to fit or choose anything.
+- **Two task families**: business categories close to Foq's intended use
+  (ticket routing, security, sentiment, triage — 325 exam cases) and
+  reasoning puzzles, harder than typical production inputs (925 exam cases).
+- **Two configurations**: Foq 8B alone (`NO_LORA=1`, or adapter not installed),
+  and Foq 8B + LoRA decision adapter v1 (the default once `foq setup` has
+  installed it).
 
-```mermaid
-xychart-beta
-    title "Production Exam — 150 Cases (%)"
-    x-axis ["Foq (8B + LoRA)", "8B Bare"]
-    y-axis "Accuracy %" 80 --> 102
-    bar [100, 89.3]
-```
-
-<p align="center">
-  <img src="assets/chart_adaptateur.png" alt="Adapter Impact: Bare 8B 89.3% vs Foq 100% on 150 Cases" width="700">
-</p>
-
-**The LoRA adapter provides a +10.7 point boost** on domain-specific operational cases for only 4 ms of additional latency. 
-
-"Foq 8B" operates in pure direct feed-forward mode. Zero regex heuristics, zero hidden routing tricks: 100% of decisions are made by the neural network weights.
-The default abstention threshold (`min_confidence=0.95`) was validated across a 500-case hardening suite: decisions below the threshold trigger `needs_review=True` instead of taking ungrounded guesses.
-
-*Replay*:
-```bash
-python -m unittest discover -s tests
-```
+Limits: the cases come from generators, not from real traffic; 21 % of them
+were later rejected by the 27B judge when a later training set was built, and
+are kept (removing them would flatter the score). See `eval/README.md`.
 
 ---
 
-## 3. RLCD Statistical Calibration — Before & After
+## 2. Accuracy on `exam_test`
 
-Expected Calibration Error (ECE) quantifies the gap between predicted confidence probabilities and empirical reality. Lower is better.
-
-```mermaid
-xychart-beta
-    title "8B Expected Calibration Error (%) — Before vs After RLCD"
-    x-axis ["Raw Model", "After RLCD (T*)"]
-    y-axis "ECE %" 0 --> 8
-    bar [6.65, 0.23]
-```
-
-<p align="center">
-  <img src="assets/chart_calibration.png" alt="ECE before and after calibration: 6.65% down to 0.23%" width="460">
-</p>
-
-*Replay*: `foq/calibration.py` (`TemperatureScaler`, calibration profile bundled inside the package).
-
-Average confidence before calibration: 93.3% for 100% accuracy on the dataset. After RLCD calibration, confidence probabilities align with factual reality (ECE 0.23%).
-
----
-
-## 4. Cost per Million Decisions
-
-```mermaid
-xychart-beta
-    title "Cost per 1,000,000 Decisions (USD)"
-    x-axis ["Foq (Local)", "Cloud LLM API (Upper Bound)"]
-    y-axis "USD" 0 --> 10500
-    bar [0, 10000]
-```
-
-<p align="center">
-  <img src="assets/chart_cout.png" alt="Cost per 1M decisions: Foq $0 vs Cloud API up to $10,000" width="460">
-</p>
-
-*Baseline*: Cloud API estimated at $0.01 per decision ($10 to $30 per million tokens + round-trip overhead).
-Foq runs at $0 cloud cost on your existing hardware.
-
----
-
-## 5. Decision Pipeline Architecture
-
-```mermaid
-flowchart LR
-    A[Untrusted Context / Input] --> B{AI Security Guard<br/>fail-closed}
-    B -- threat --> X[403 Forbidden]
-    B -- clean --> C[Foq Reflex 8B<br/>~20 ms]
-    C -- "confidence >= threshold" --> E[Typed Output<br/>+ Calibrated Probability]
-    C -- "confidence < threshold" --> F[needs_review = True<br/>Human / Tier-2 Handoff]
-```
-
-Guaranteed properties by construction: output strictly constrained to the allowed schema; server unavailable = fail-closed, never hallucinated guesses; 100% direct neural evaluation.
-
----
-
-## 6. Summary of Measured Metrics
-
-| Metric | Value | Measurement Method |
+| | Foq 8B alone | Foq 8B + adapter v1 |
 |---|---|---|
-| Latency P50 (8B Reflex) | 20–25 ms | Local client-server benchmark |
-| Sequential Throughput | >100 dec/s | C++ prompt cache, 4 slots |
-| Production Exam (150 cases) | **150/150 (100%)** · P50 26 ms | Test suite `tests/` |
-| LoRA Adapter Gain | 89.3% bare → 100% (+10.7 pts) | Same exam with/without `--lora` |
-| Reasoning LLM Baseline | 12,300 ms | DeepSeek R1 8B on local testbed |
-| Post-Calibration ECE | 0.02% – 0.23% | `foq/calibration.py` |
-| Default Review Threshold | 0.95 | Validated on 500 blind test cases |
-| 8B Model Size | 2.18 GB | `foq-reflex-8b-pq2_0.gguf` |
-| Minimum 8B VRAM | ~2.2 GB | Real GPU allocation |
-| Full LoRA Training Time | 12 min / 1,541 samples | RTX 4080 Super, QLoRA |
+| All cases (1,250) [95 % CI] | 64.8 % [62.1–67.4] | 68.0 % [65.4–70.5] |
+| Business categories (325) [95 % CI] | 78.2 % [73.3–82.3] | 83.1 % [78.6–86.8] |
+| Reasoning puzzles (925) [95 % CI] | 60.1 % [56.9–63.2] | 62.7 % [59.5–65.8] |
+
+With the adapter, overall accuracy goes from 64.8 % to 68.0 % on this exam.
+
+### When Foq is very sure (adapter v1, fitted temperature)
+
+| Confidence at least | Decisions | Correct | Accuracy [95 % CI] |
+|---|---|---|---|
+| 0.9 | 296 | 289 | 97.6 % [95.2–98.8] |
+| 0.95 | 152 | 150 | 98.7 % [95.3–99.6] |
+| 0.97 | 79 | 79 | 100.0 % [95.4–100.0] |
+| 0.98 | 38 | 38 | 100.0 % [90.8–100.0] |
+
+### By category (adapter v1, fitted temperature; "kept" = confidence ≥ 0.8)
+
+| Category | Cases | Accuracy | Kept | Correct among kept |
+|---|---|---|---|---|
+| Information security | 100 | 94.0 % | 61 | 61 |
+| Ticket routing | 75 | 88.0 % | 44 | 43 |
+| Sentiment | 75 | 86.7 % | 43 | 43 |
+| Multiple negations | 100 | 85.0 % | 72 | 65 |
+| Fallacious causality | 75 | 81.3 % | 39 | 39 |
+| Counter-intuitive physiology | 100 | 75.0 % | 45 | 41 |
+| Common sense | 100 | 66.0 % | 34 | 34 |
+| Linguistic riddles | 100 | 65.0 % | 26 | 24 |
+| Counter-intuitive maths | 125 | 63.2 % | 49 | 46 |
+| Emergency triage | 75 | 60.0 % | 22 | 19 |
+| Spatial reasoning | 100 | 47.0 % | 11 | 10 |
+| Race positions | 150 | 45.3 % | 4 | 4 |
+| Temporal reasoning | 75 | 45.3 % | 15 | 11 |
+
+Emergency triage is a weak spot: 60.0 % overall, 86.4 % on the decisions kept.
+The same tables for the model alone are in `eval/RESULTS.md`.
 
 ---
 
-## 7. Head-to-Head: Foq 8B vs Laya (ModernBERT / mmBERT)
+## 3. Calibration (temperature scaling)
 
-Direct empirical evaluation executed on the same local GPU against the open-source alternative [**Laya**](https://github.com/NandhaKishorM/laya) (`laya 0.3.4`, ModernBERT-large 421M and mmBERT-base 322M).
+Foq rescales its probabilities with a single temperature T, fitted on
+`calib_val` and evaluated on `exam_test`. Expected calibration error (ECE,
+15 bins) is the gap between stated confidence and observed accuracy; lower is
+better.
 
-### Measured Performance Summary
+| Temperature | Foq 8B alone: ECE [95 % CI] | Foq 8B + adapter v1: ECE [95 % CI] |
+|---|---|---|
+| 1 (raw model) | 22.75 % [20.33–25.42] | 16.67 % [14.25–19.06] |
+| 0.1 (profile shipped in 1.0.5) | 33.55 % [31.0–36.24] | 30.09 % [27.58–32.81] |
+| fitted on `calib_val` | **5.5 %** [4.16–8.4] (T = 3.6381) | **4.77 %** [3.4–7.29] (T = 2.6353) |
 
-<p align="center">
-  <img src="assets/chart_memory_paradox.png" alt="The Memory Paradox: Foq 8B vs Laya Router" width="820">
-</p>
+With the fitted temperature, mean confidence is 66.8 % for 64.8 % accuracy
+(model alone) and 69.3 % for 68.0 % accuracy (with adapter). The profiles
+shipped on this branch are these fitted temperatures:
+`foq/calibration_profile.json` (with adapter) and
+`foq/calibration_profile_bare.json` (model alone).
 
-<p align="center">
-  <img src="assets/chart_foq_vs_laya_robustness.png" alt="Adversarial Robustness: Foq 8B vs Laya" width="820">
-</p>
+By family, a single temperature leaves the model slightly under-confident on
+business tasks (ECE 10.08 % alone, 7.98 % with adapter) and well calibrated on
+puzzles (7.05 % and 5.76 %).
 
-<p align="center">
-  <img src="assets/chart_foq_vs_laya_perf.png" alt="Throughput and Latency: Foq 8B vs Laya" width="820">
-</p>
+---
 
-```mermaid
-xychart-beta
-    title "Accuracy on Real and Adversarial Cases (%)"
-    x-axis ["Foq 8B", "Laya (BERT)"]
-    y-axis "Accuracy %" 50 --> 105
-    bar [100.0, 77.8]
-```
+## 4. What `needs_review` does
 
-| Metric | Foq 8B (PQ2_0, C++) | Laya (ModernBERT / mmBERT) | Operational Impact |
+Decisions whose confidence is below the threshold are flagged
+`needs_review = True` instead of being returned as certain. With the fitted
+temperature and the adapter:
+
+| Threshold | Sent to review | Accuracy on decisions kept [95 % CI] | Errors caught |
 |---|---|---|---|
-| **Overall Accuracy** | **100% (9/9)** | 77.8% (7/9) | Foq is flawless on real-world cases; Laya fails on critical paths. |
-| **Critical Emergency Triage** | **[OK] 100% Urgent (Safe)** | ❌ **[FAIL] False (100% conf)** | **Catastrophic failure in Laya**: on *"EMERGENCY: database down"*, Laya answers False with 100% confidence. |
-| **Multilingual Routing (German)** | **[OK] 100% (Routed to De)** | ❌ **[FAIL] False (72.3% conf)** | Laya's router sent a German cancellation request to the English model. |
-| **Negation Robustness** | **[OK] 98.2% Confident** | ❌ 14.6% Confidence | On *"NOT a billing issue"*, Laya's confidence collapses to near zero. |
-| **Prompt Injection Resistance** | **[OK] 100% Immune (99.8% conf)** | ❌ 7.9% Confidence | Foq strictly isolates context; Laya is severely destabilized. |
-| **Median Unit Latency (P50)** | **20.7 ms** | 22.6 ms | Foq C++ (`llama-server`) is faster than Laya (PyTorch) on GPU. |
-| **Sequential Throughput** | **102.0 dec/s** | 43.5 dec/s | **+134% throughput advantage** for Foq via C++ prompt caching. |
-| **System RAM (RSS)** | **2.54 GB** (2,538 MB) | 3.35 GB (3,352 MB) | Native C++ binary avoids heavy PyTorch / HuggingFace memory overhead. |
-| **GPU VRAM Reserved** | **~2.80 GB** (2,250 MB net) | 5.31 GB (4,470 MB net) | Foq compresses 8B into ternary 1.58-bit; Laya loads 3 FP16 models. |
-| **Total Real Memory** | **~4.8 GB** (RAM + VRAM) | ~8.6 GB (RAM + VRAM) | **Foq uses 44% less memory** than Laya Router while having 19× more parameters. |
-| **Context Window** | **4,096 tokens** | 512 / 1,024 tokens | Laya silently truncates beyond 512 tokens. |
-| **JSON / Pydantic Extraction** | **Supported (`extract`)** | ❌ Not supported | Laya is a classifier only; unable to extract structured objects. |
+| 0.5 | 22.1 % | 74.9 % [72.1–77.6] (974 kept) | 39.0 % |
+| 0.6 | 39.7 % | 82.9 % [80.0–85.4] (754 kept) | 67.8 % |
+| 0.7 | 52.4 % | 90.3 % [87.6–92.4] (595 kept) | 85.5 % |
+| **0.8 (default)** | **62.8 %** | **94.6 %** [92.2–96.3] (465 kept) | **93.8 %** |
+| 0.9 | 76.3 % | 97.6 % [95.2–98.8] (296 kept) | 98.2 % |
+| 0.95 | 87.8 % | 98.7 % [95.3–99.6] (152 kept) | 99.5 % |
 
-*Replay*: Fully reproducible script available at [`examples/benchmark_foq_vs_laya.py`](examples/benchmark_foq_vs_laya.py).
+For the model alone at 0.8: 70.2 % sent to review, 91.1 % [87.8–93.6] accuracy
+on the 372 decisions kept.
 
-### Key Takeaways: Why 8 Billion Parameters Are Indispensable
+The default threshold moved from 0.95 to 0.8: with an honest temperature, 0.95
+sends 87.8 % of decisions to review. With the old profile (T = 0.1), 0.95 sent
+only 9.3 % to review and caught 14.8 % of the errors.
 
-Laya is an appealing project on paper (compact 420M models, clean pip package), but empirical production testing reveals clear limits:
+The full threshold tables, for both configurations and both temperatures, are in
+[`eval/RESULTS.md`](eval/RESULTS.md).
 
-1. **Dangerous Hallucination on Emergency Triage**: Facing a critical production database failure, Laya claims the incident is *not urgent* with 100% false overconfidence.
-2. **Unreliable Multilingual Routing**: A cancellation request written in German was erroneously dispatched to the English classification pipeline.
-3. **Semantic Collapse on Negations and Attacks**: Whenever an input contains a negation (*"this is NOT a billing issue"*) or an adversarial prompt injection, Laya's confidence collapses to 7%–14%.
-4. **The 8B Parameter Advantage**: Foq's 8 billion parameters provide the reserve of linguistic reasoning, world knowledge, and context comprehension that a 420M BERT encoder cannot match.
-5. **The Real Memory Paradox (RAM + VRAM)**: On paper, a 420M model appears lighter than an 8B model. In production reality, Laya in Router mode consumes **~8.6 GB of total memory** (3.35 GB Python RAM + 5.31 GB PyTorch VRAM to keep 3 FP16 models resident). Foq, written in native C++ and compressed in 1.58-bit ternary (PQ2_0), consumes only **~4.8 GB in total**. **Foq is lighter in actual memory while being significantly more capable.**
+---
+
+## 5. Latency
+
+From [`eval/LATENCY.md`](eval/LATENCY.md), produced by `eval/latency.py`: the 1,250
+`exam_test` cases, one llama-server at a time, 3 passes per configuration,
+sequential requests, localhost, NVIDIA GeForce RTX 4080 SUPER, Windows 11.
+
+| Configuration | Server median | Server P95 | HTTP median | HTTP P95 |
+|---|---|---|---|---|
+| Foq 8B, no adapter | 18.35 ms | 21.49 ms | 31.8 ms | 42.04 ms |
+| Foq 8B + adapter v1 | 24.82 ms | 27.14 ms | 35.66 ms | 47.5 ms |
+
+"Server" is the time llama-server reports; "HTTP" is what a Python client on the
+same machine waits for. Your hardware will give different numbers:
+`foq benchmark` measures them.
+
+No comparison with cloud models is made: the advantages of running locally
+(offline, nothing leaves the machine, no per-call cost, open weights) are facts,
+not measurements.
+
+---
+
+## 6. Foq vs Laya: 9 illustrative examples
+
+[`examples/benchmark_foq_vs_laya.py`](examples/benchmark_foq_vs_laya.py) runs 9
+cases that we chose against [Laya](https://github.com/NandhaKishorM/laya)
+(`laya 0.3.4`, ModernBERT-large 421M and mmBERT-base 322M). In those examples:
+
+- a German cancellation request — Laya's script-based router sent it to its
+  English model; Foq handled it;
+- a negation (*"I am NOT having any billing problem, the website JS is broken"*)
+  and a prompt injection — Laya's confidence dropped sharply; Foq kept the right
+  route;
+- an *"EMERGENCY: the main database cluster is down…"* ticket — Laya marked it
+  non-urgent and Foq flagged it urgent. On our exam, though, emergency triage is
+  one of Foq's weak categories (60.0 %, see §2), so this example says little.
+
+Laya is far smaller and a reasonable choice for fixed-label classification on
+short inputs (its context is 512 or 1,024 tokens; Foq's is 4,096, and Foq can
+also extract Pydantic objects). These 9 cases illustrate behaviour; they were
+picked by us and do not rank the two systems.
+
+---
+
+## 7. Withdrawn figures
+
+Earlier versions of this page and of the site published figures that do not
+hold up. They are withdrawn rather than repeated here:
+
+- **The "production exam" score and the adapter gain measured on it.** Its
+  "unseen" cases came from the same generators as the training data, and the
+  others were used to choose between adapters. On the held-out exam the
+  adapter takes accuracy from 64.8 % to 68.0 %.
+- **The post-calibration ECE.** It was fitted and measured on a tiny calibration
+  set that contained no errors; the optimizer stopped at its lower bound
+  (T = 0.1). On held-out data that profile gives an ECE of 30.09 % (§3).
+- **The former name of the calibration method.** It is temperature scaling, and is now called that.
+- **Speed and cost comparisons with cloud models.** They were estimates against
+  large models, not measurements. Foq now states only its own measured latency
+  (§5).
+- **The 0.95 default threshold.** It is now 0.8, set from the held-out exam (§4).

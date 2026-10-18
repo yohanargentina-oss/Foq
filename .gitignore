@@ -44,3 +44,6 @@ site/
 data/
 scripts/
 uv.lock
+
+# Public held-out exam (eval/README.md): must stay in the repository
+!eval/data/

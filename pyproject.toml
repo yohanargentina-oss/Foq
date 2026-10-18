@@ -65,4 +65,4 @@ where = ["."]
 include = ["foq*"]
 
 [tool.setuptools.package-data]
-foq = ["calibration_profile.json"]
+foq = ["calibration_profile.json", "calibration_profile_bare.json"]

@@ -33,7 +33,7 @@ if "%LLAMA_CANDIDAT%"=="" (
 set "LLAMA_EXE=%LLAMA_CANDIDAT%"
 
 if "%LLAMA_EXE%"=="" (
-    echo [ERROR] llama-server not found (checked LLAMA_EXE, .local\bin\foq-llama, PATH).
+    echo [ERROR] llama-server not found: checked LLAMA_EXE, .local\bin\foq-llama and PATH.
     echo The Foq model requires the PQ2_0 llama.cpp build:
     echo https://github.com/yohanargentina-oss/Foq/releases
     pause
@@ -47,5 +47,23 @@ if not exist "%MODEL_PATH%" (
     exit /b 1
 )
 
+:: Decision adapter (LoRA): loaded by default when present, NO_LORA=1 disables it.
+:: The default calibration profile (foq/calibration_profile.json) is fitted for model + adapter.
+if "%LORA_PATH%"=="" (
+    if exist "%USERPROFILE%\.models\foq\foq_decision_8b.gguf" (
+        set "LORA_PATH=%USERPROFILE%\.models\foq\foq_decision_8b.gguf"
+    ) else if exist ".\adapters\foq_decision_8b\foq_decision_8b.gguf" (
+        set "LORA_PATH=.\adapters\foq_decision_8b\foq_decision_8b.gguf"
+    )
+)
+set "LORA_ARGS="
+if "%NO_LORA%"=="1" set "LORA_PATH="
+if not "%LORA_PATH%"=="" (
+    echo [*] Active LoRA adapter: %LORA_PATH%
+    set LORA_ARGS=--lora "%LORA_PATH%"
+) else (
+    echo [!] No decision adapter: use foq/calibration_profile_bare.json for calibrated confidences.
+)
+
 echo [*] Starting llama-server with: %MODEL_PATH% on port %PORT%...
-"%LLAMA_EXE%" -m "%MODEL_PATH%" -ngl 99 -c 4096 -b 2048 -ub 512 -np 4 --flash-attn on --port %PORT% --host 127.0.0.1 --alias foq --alias foq-system1
+"%LLAMA_EXE%" -m "%MODEL_PATH%" %LORA_ARGS% -ngl 99 -c 4096 -b 2048 -ub 512 -np 4 --flash-attn on --port %PORT% --host 127.0.0.1 --alias foq --alias foq-system1
