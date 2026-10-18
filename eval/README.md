@@ -35,7 +35,7 @@ foq setup                                          # weights + adapter
 llama-server -m ~/.models/foq/foq-reflex-8b-pq2_0.gguf -ngl 99 -c 4096 -np 1 --port 8089
 llama-server -m ~/.models/foq/foq-reflex-8b-pq2_0.gguf --lora adapters/foq_decision_8b/foq_decision_8b.gguf -ngl 99 -c 4096 -np 1 --port 8090
 
-python eval/build_split.py                         # rebuilds the two files (deterministic)
+python eval/build_split.py                         # optional: rebuilds the two files; needs data/ (not published)
 python eval/run_cases.py --set calib_val --tag bare --base-url http://127.0.0.1:8089
 python eval/run_cases.py --set exam_test --tag bare --base-url http://127.0.0.1:8089
 python eval/run_cases.py --set calib_val --tag lora --base-url http://127.0.0.1:8090
